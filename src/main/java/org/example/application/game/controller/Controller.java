@@ -15,7 +15,9 @@ public abstract class Controller {
 
     public Controller() {
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.configure(
+        this.objectMapper
+
+                 .configure(
                 MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true
         );
     }
