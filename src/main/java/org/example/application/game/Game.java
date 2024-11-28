@@ -5,7 +5,6 @@ import org.example.application.game.controller.SessionController;
 import org.example.application.game.controller.UserController;
 import org.example.application.game.exception.UserAlreadyExistsException;
 import org.example.application.game.repository.UserMemoryRepository;
-import org.example.application.game.repository.UserRepository;
 import org.example.application.game.routing.ControllerNotFoundException;
 import org.example.application.game.routing.Router;
 import org.example.application.game.service.UserService;

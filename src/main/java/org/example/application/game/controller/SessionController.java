@@ -3,7 +3,6 @@ import org.example.application.game.entity.User;
 import org.example.application.game.exception.EntityNotFoundException;
 import org.example.application.game.repository.UserMemoryRepository;
 import org.example.application.game.repository.UserRepository;
-import org.example.application.game.service.TokenService;
 import org.example.application.game.service.UserService;
 import org.example.server.http.Method;
 import org.example.server.http.Request;
@@ -26,19 +25,19 @@ public class SessionController extends Controller{
         return null;
     }
     private Response login(Request request) {
+        // Request-Body in User-Objekt konvertieren
         User user = fromBody(request.getBody(), User.class);
 
         try {
             boolean success = userService.login(user);
+
             if (success) {
-                // Erstellen des Tokens
-                String token = TokenService.createToken(user.getUsername());
-                return json(Status.OK, "{\"message\": \"Login successful\", \"token\": \"" + token + "\"}");
+                return json(Status.OK, "{\"message\": \"Login successful\"}");
             } else {
                 return json(Status.UNAUTHORIZED, "{\"error\": \"Invalid username or password\"}");
             }
-        } catch (Exception e) {
-            return json(Status.NOT_FOUND, "{\"error\": \"User not found\"}");
+        } catch (EntityNotFoundException e) {
+            return json(Status.NOT_FOUND, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 

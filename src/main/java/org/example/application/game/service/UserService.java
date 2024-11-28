@@ -6,10 +6,15 @@ import org.example.application.game.exception.UserAlreadyExistsException;
 import org.example.application.game.repository.UserMemoryRepository;
 import org.example.application.game.repository.UserRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserService {
     private final UserRepository userRepository;
+    private final Map<String, String> tokens = new HashMap<>();
+    private final Map<String, User> users = new HashMap<>();
+
 
     public UserService(UserMemoryRepository userMemoryRepository) {
         this.userRepository = userMemoryRepository;
@@ -24,7 +29,6 @@ public class UserService {
         System.out.println("user saved");
         return userRepository.save(user);
     }
-
     public List<User> getAll() {
         return userRepository.findAll();
     }
@@ -33,7 +37,6 @@ public class UserService {
         return userRepository.find(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), id));
     }
-
     public boolean login(User user) {
         // Benutzername und Passwort prüfen
         System.out.println("Username: " + user.getUsername());
@@ -44,6 +47,9 @@ public class UserService {
         }
 
         System.out.println("Login successful");
-        return true; // Login erfolgreich
+        String token = TokenService.CreatToken(user.getUsername());
+        tokens.put(user.getUsername(), token);
+        return Boolean.parseBoolean(token);
+
     }
 }
