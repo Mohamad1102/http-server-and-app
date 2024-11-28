@@ -1,0 +1,29 @@
+@startuml
+
+actor Client
+Client -> SessionController: POST /session {username, password}
+activate Client
+activate SessionController
+SessionController -> TokenService: authenticate(tokenRequest)
+
+activate TokenService
+
+TokenService -> UserRepository: findByUsername(username)
+activate UserRepository
+
+UserRepository --> TokenService: user
+deactivate UserRepository
+
+TokenService -> TokenService: verify(user, password)
+
+TokenService -> TokenService: generateToken(user)
+
+TokenService --> SessionController: token
+deactivate TokenService
+
+
+SessionController --> Client: 200 {token}
+deactivate SessionController
+deactivate Client
+
+@enduml
