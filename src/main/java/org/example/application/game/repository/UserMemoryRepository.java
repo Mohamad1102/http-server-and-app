@@ -37,8 +37,11 @@ public class UserMemoryRepository implements UserRepository {
     }
 
     public boolean findByUsername(String username) {
-        System.out.println(users);
         return users.stream().anyMatch(user -> user.getUsername().equals(username));
+    }
+    public boolean isValidUser(String username, String password) {
+        return users.stream()
+                .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
     }
 }
 

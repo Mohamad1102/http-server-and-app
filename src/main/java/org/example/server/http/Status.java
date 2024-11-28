@@ -4,9 +4,10 @@ public enum Status {
     OK(200, "OK"),
     CREATED(201, "CREATED"),
     NO_CONTENT(204, "No Content"),
+    UNAUTHORIZED (401, "NON Existent"),
     NOT_FOUND(404, "Not Found"),
     CONFLICT(409, "Conflict"),
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error"),;
 
     private final int code;
     private final String message;

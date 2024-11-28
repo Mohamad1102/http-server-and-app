@@ -29,11 +29,11 @@ public class HttpResponseFormatter {
             responseBuilder.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
         }
 
+        responseBuilder.append("\r\n");
         if (response.getBody() == null || response.getBody().isEmpty()) {
             return responseBuilder.toString();
         }
 
-        responseBuilder.append("\r\n");
         responseBuilder.append(response.getBody());
 
         return responseBuilder.toString();

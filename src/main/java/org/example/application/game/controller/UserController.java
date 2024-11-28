@@ -12,12 +12,15 @@ import java.util.List;
 
 
 public class UserController extends Controller{
-    private final UserService userService = new UserService();
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public Response handle(Request request) throws UserAlreadyExistsException {
 
-        System.out.println("here");
         if (request.getMethod().equals(Method.POST)) {
             return create(request);
         }
@@ -29,14 +32,12 @@ public class UserController extends Controller{
     }
 
     private Response create(Request request) throws UserAlreadyExistsException {
-        System.out.println("here 2");
         // request --> user
         User user = fromBody(request.getBody(), User.class);
         user = userService.create(user);
 
         return json(Status.CREATED, user);
     }
-
     private Response readAll() {
         List<User> users = userService.getAll();
 

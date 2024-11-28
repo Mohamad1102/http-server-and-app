@@ -1,17 +1,21 @@
 package org.example.application.game;
 
 import org.example.application.game.controller.Controller;
+import org.example.application.game.controller.SessionController;
 import org.example.application.game.controller.UserController;
 import org.example.application.game.exception.UserAlreadyExistsException;
+import org.example.application.game.repository.UserMemoryRepository;
+import org.example.application.game.repository.UserRepository;
 import org.example.application.game.routing.ControllerNotFoundException;
 import org.example.application.game.routing.Router;
+import org.example.application.game.service.UserService;
 import org.example.server.Application;
 import org.example.server.http.Request;
 import org.example.server.http.Response;
 import org.example.server.http.Status;
 
 public class Game implements Application {
-    private final UserController userController = new UserController();
+    private final UserController userController = new UserController(new UserService(new UserMemoryRepository()));
 
     private final Router router;
 
@@ -35,20 +39,21 @@ public class Game implements Application {
             response.setBody("{\"error\": \"Path: %s not found\" }".formatted(e.getMessage()));
 
             return response;
-        } catch (UserAlreadyExistsException e)
-        {
+        } catch (UserAlreadyExistsException e) {
             Response response = new Response();
-            Status status = e.getStatus(); // Hole den zugehörigen Status
             response.setStatus(Status.CONFLICT);
-            System.out.println("HTTP Code: " + status.getCode());
-            System.out.println("Message: " + status.getMessage());
             return response;
         }
     }
 
     private void initializeRoutes() {
-        this.router.addRoute("/users", new UserController());
+        UserMemoryRepository userRepository = new UserMemoryRepository();
+        UserService userService = new UserService(userRepository);
+
+        this.router.addRoute("/users", new UserController(userService));
+        this.router.addRoute("/sessions", new SessionController(userRepository));
     }
+
 }
 
 

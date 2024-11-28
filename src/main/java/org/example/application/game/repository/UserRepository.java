@@ -13,5 +13,9 @@ public interface UserRepository {
     Optional<User> find(int id);
 
     User delete(User user);
-    boolean findByUsername(String user);
+
+    boolean findByUsername(String username);
+
+    boolean isValidUser(String username, String password);
+
 }

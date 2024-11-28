@@ -11,10 +11,9 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService() {
-        this.userRepository = new UserMemoryRepository();
+    public UserService(UserMemoryRepository userMemoryRepository) {
+        this.userRepository = userMemoryRepository;
     }
-
     public User create(User user) throws UserAlreadyExistsException {
         // Prüfen, ob der Benutzer existiert
         if (userRepository.findByUsername(user.getUsername())) {
@@ -33,5 +32,18 @@ public class UserService {
     public User getById(int id) {
         return userRepository.find(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), id));
+    }
+
+    public boolean login(User user) {
+        // Benutzername und Passwort prüfen
+        System.out.println("Username: " + user.getUsername());
+        System.out.println("Password: " + user.getPassword());
+        if (!userRepository.isValidUser(user.getUsername(), user.getPassword())) {
+            System.out.println("Invalid credentials");
+            return false; // Login fehlgeschlagen
+        }
+
+        System.out.println("Login successful");
+        return true; // Login erfolgreich
     }
 }

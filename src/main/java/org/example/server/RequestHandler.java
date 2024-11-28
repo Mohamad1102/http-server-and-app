@@ -39,6 +39,10 @@ public class RequestHandler {    // [x] receive socket
 
             Response response = this.application.handle(request);
 
+            http=httpResponseFormatter.format(response);
+
+            System.out.println(http);
+
             httpSocket.write(http);
         } catch (IOException e) {
 
