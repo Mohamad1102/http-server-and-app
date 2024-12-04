@@ -10,11 +10,10 @@ import org.example.server.http.Response;
 import org.example.server.http.Status;
 
 public class SessionController extends Controller{
-    UserRepository userRepository;
-    UserService userService = new UserService(new UserMemoryRepository());
+    UserService userService;
 
-    public SessionController(UserMemoryRepository userMemoryRepository) {
-        this.userRepository  = userMemoryRepository;
+    public SessionController(UserService userService) {
+        this.userService  = userService;
     }
 
     public Response handle(Request request){
@@ -29,9 +28,10 @@ public class SessionController extends Controller{
         User user = fromBody(request.getBody(), User.class);
 
         try {
-            boolean success = userService.login(user);
+            String token = userService.login(user);
 
-            if (success) {
+            if (token != null) {
+                System.out.println(token);
                 return json(Status.OK, "{\"message\": \"Login successful\"}");
             } else {
                 return json(Status.UNAUTHORIZED, "{\"error\": \"Invalid username or password\"}");

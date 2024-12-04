@@ -50,7 +50,7 @@ public class Game implements Application {
         UserService userService = new UserService(userRepository);
 
         this.router.addRoute("/users", new UserController(userService));
-        this.router.addRoute("/sessions", new SessionController(userRepository));
+        this.router.addRoute("/sessions", new SessionController(userService));
     }
 
 }

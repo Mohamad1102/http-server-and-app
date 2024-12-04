@@ -9,6 +9,7 @@ import org.example.application.game.repository.UserRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -37,19 +38,19 @@ public class UserService {
         return userRepository.find(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), id));
     }
-    public boolean login(User user) {
+    public String login(User user) {
         // Benutzername und Passwort prüfen
         System.out.println("Username: " + user.getUsername());
         System.out.println("Password: " + user.getPassword());
         if (!userRepository.isValidUser(user.getUsername(), user.getPassword())) {
             System.out.println("Invalid credentials");
-            return false; // Login fehlgeschlagen
+            return null; // Login fehlgeschlagen
         }
 
         System.out.println("Login successful");
         String token = TokenService.CreatToken(user.getUsername());
         tokens.put(user.getUsername(), token);
-        return Boolean.parseBoolean(token);
+        return token;
 
     }
 }
