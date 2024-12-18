@@ -32,7 +32,7 @@ public class SessionController extends Controller{
 
             if (token != null) {
                 System.out.println(token);
-                return json(Status.OK, "{\"message\": \"Login successful\"}");
+                return json(Status.OK, "{\"message\": \"Login successful\", \"token\": \"" + token + "\"}");
             } else {
                 return json(Status.UNAUTHORIZED, "{\"error\": \"Invalid username or password\"}");
             }

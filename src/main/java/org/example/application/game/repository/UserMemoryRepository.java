@@ -15,7 +15,7 @@ public class UserMemoryRepository implements UserRepository {
 
     @Override
     public User save(User user) {
-        user.setId(this.users.size() + 1);
+        user.setId(String.valueOf(this.users.size() + 1));
         this.users.add(user);
 
         return user;

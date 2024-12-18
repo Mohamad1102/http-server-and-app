@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: org.example.application.game.service.TokenServiceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 1.107 s <<< FAILURE! -- in org.example.application.game.service.TokenServiceTest
+org.example.application.game.service.TokenServiceTest.give_Token_when_einloggt -- Time elapsed: 1.084 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "org.example.application.game.entity.User.getUsername()" because "user" is null
+	at org.example.application.game.service.UserService.login(UserService.java:41)
+	at org.example.application.game.service.TokenServiceTest.give_Token_when_einloggt(TokenServiceTest.java:21)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+
