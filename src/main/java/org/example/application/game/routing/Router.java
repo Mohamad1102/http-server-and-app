@@ -1,6 +1,7 @@
 package org.example.application.game.routing;
 
 import org.example.application.game.controller.Controller;
+import org.example.application.game.exception.ControllerNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;

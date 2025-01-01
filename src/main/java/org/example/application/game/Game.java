@@ -1,13 +1,11 @@
 package org.example.application.game;
 
-import org.example.application.game.controller.Controller;
-import org.example.application.game.controller.SessionController;
-import org.example.application.game.controller.UserController;
+import org.example.application.game.controller.*;
 import org.example.application.game.data.ConnectionPool;
 import org.example.application.game.exception.UserAlreadyExistsException;
 import org.example.application.game.repository.UserDbRepository;
 import org.example.application.game.repository.UserRepository;
-import org.example.application.game.routing.ControllerNotFoundException;
+import org.example.application.game.exception.ControllerNotFoundException;
 import org.example.application.game.routing.Router;
 import org.example.application.game.service.TokenService;
 import org.example.application.game.service.UserService;
@@ -56,8 +54,11 @@ public class Game implements Application {
         TokenService tokenService = new TokenService();
         UserService userService = new UserService(userRepository, tokenService);
 
+
         this.router.addRoute("/users", new UserController(userService));
         this.router.addRoute("/sessions", new SessionController(userService));
+        this.router.addRoute("/wait", new WaitController());
+        this.router.addRoute("/health", new HealthController());
     }
 
 }

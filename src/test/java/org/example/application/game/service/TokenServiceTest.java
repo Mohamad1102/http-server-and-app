@@ -5,9 +5,9 @@ import org.example.application.game.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class TokenServiceTest {
@@ -15,8 +15,13 @@ class TokenServiceTest {
     public void give_Token_when_einloggt() {
         UserRepository userRepository = mock(UserRepository.class);
         User user = new User();
+        user.setUsername("test");
         TokenService tokenService = new TokenService();
         UserService userService = new UserService(userRepository, tokenService);
-        OngoingStubbing<String> stringOngoingStubbing = when(userService.login(any())).thenReturn(user.getUsername() + "-mtcgToken");
+        when(userRepository.isValidUser(any(), any())).thenReturn(true);
+
+        String token = userService.login(user);
+
+        assertEquals("test-mtcgToken", token);
     }
 }

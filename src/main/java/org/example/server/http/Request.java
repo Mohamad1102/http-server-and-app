@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
+
     private Method method;
 
     private String path;
@@ -26,7 +27,7 @@ public class Request {
         return this.header.get(name);
     }
 
-    public void setHeader(String name, String value) {
+    public void addHeader(String name, String value) {
         this.header.put(name, value);
     }
 

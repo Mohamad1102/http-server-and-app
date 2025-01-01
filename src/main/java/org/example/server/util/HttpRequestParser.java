@@ -28,7 +28,7 @@ public class HttpRequestParser {
             }
 
             String[] headerParts = line.split(":", 2);
-            request.setHeader(headerParts[0], headerParts[1].trim());
+            request.addHeader(headerParts[0], headerParts[1].trim());
         }
 
         if (emptyLine == 0 || lines.length - 1 == emptyLine) {

@@ -8,8 +8,11 @@ import org.example.server.util.HttpSocket;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
-public class RequestHandler {    // [x] receive socket
+public class RequestHandler implements Runnable {
+
+    // [x] receive socket
     // [x] wrap socket in HttpSocket
     // [x] get HTTP request
     // [x] parse to request obj
@@ -29,6 +32,11 @@ public class RequestHandler {    // [x] receive socket
         this.application = application;
     }
 
+    @Override
+    public void run() {
+        this.handle();
+    }
+
     public void handle() {
         HttpRequestParser httpRequestParser = new HttpRequestParser();
         HttpResponseFormatter httpResponseFormatter = new HttpResponseFormatter();
@@ -37,12 +45,16 @@ public class RequestHandler {    // [x] receive socket
             String http = httpSocket.read();
             Request request = httpRequestParser.parse(http);
 
+            System.out.printf(
+                    "%s %s %s\n",
+                    LocalDateTime.now() ,
+                    request.getMethod(),
+                    request.getPath()
+            );
+
             Response response = this.application.handle(request);
 
-            http=httpResponseFormatter.format(response);
-
-            System.out.println(http);
-
+            http = httpResponseFormatter.format(response);
             httpSocket.write(http);
         } catch (IOException e) {
 
@@ -50,16 +62,16 @@ public class RequestHandler {    // [x] receive socket
 
             throw new RuntimeException(e);
         }
-
-        /*
-        this is the idea: do something but close the socket in any case
-        try {
-            // try something risky
-        } catch () {
-            // handle the problem
-        } finally {
-            // cleanup
-        }
-        */
     }
+
+    /*
+    this is the idea: do something but close the socket in any case
+    try {
+        // try something risky
+    } catch () {
+        // handle the problem
+    } finally {
+        // cleanup
+    }
+    */
 }
