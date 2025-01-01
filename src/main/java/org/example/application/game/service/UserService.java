@@ -1,6 +1,5 @@
 package org.example.application.game.service;
 
-import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.EntityNotFoundException;
 import org.example.application.game.exception.UserAlreadyExistsException;
