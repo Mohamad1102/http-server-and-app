@@ -1,29 +1,32 @@
 package org.example.application.game.entity;
 
+import java.util.UUID;
+
 public class Card {
-    private String id;
+    private UUID id;  // UUID statt String
     private String name;
-    private int damage;
-    private String elementType;
-    private CardType type;
+    private double damage;
+    private final CardType cardType;  // Verwendet Enum statt boolean
 
-    public enum CardType {
-        SPELL, MONSTER
-    }
-
-    public Card(String name, int damage, String elementType, CardType type) {
+    // Constructor
+    public Card(String name, double damage, CardType cardType) {
+        this.id = UUID.randomUUID();  // automatisch eine neue UUID erzeugen
         this.name = name;
         this.damage = damage;
-        this.elementType = elementType;
-        this.type = type;
+        this.cardType = cardType;
+    }
+
+    public enum CardType {
+        MONSTER,
+        SPELL
     }
 
     // Getter und Setter
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -35,27 +38,15 @@ public class Card {
         this.name = name;
     }
 
-    public int getDamage() {
+    public double getDamage() {
         return damage;
     }
 
-    public void setDamage(int damage) {
+    public void setDamage(double damage) {
         this.damage = damage;
     }
 
-    public String getElementType() {
-        return elementType;
-    }
-
-    public void setElementType(String elementType) {
-        this.elementType = elementType;
-    }
-
-    public CardType getType() {
-        return type;
-    }
-
-    public void setType(CardType type) {
-        this.type = type;
+    public CardType getCardType() {
+        return cardType;
     }
 }

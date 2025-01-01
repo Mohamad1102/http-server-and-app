@@ -9,15 +9,16 @@ public class User {
     private String username;
 
     private String password;
-    private int coins = 20;
-    private List<Card> stack = new ArrayList<>();
 
-    private List<Card> deck = new ArrayList<>();
+    private int coins;
 
-    public User(){}
-    public User(String username, String password) {
+    public User() {
+    }
+
+    public User(String username, String password, int coins) {
         this.username = username;
         this.password = password;
+        this.coins = 20;
     }
 
     public String getId() {
@@ -52,29 +53,18 @@ public class User {
         this.coins = coins;
     }
 
-    public List<Card> getStack() {
-        return stack;
+    public void addCoins(int amount) {
+        this.coins += amount;
     }
 
-    public void setStack(List<Card> stack) {
-        this.stack = stack;
-    }
-
-    public List<Card> getDeck() {
-        return deck;
-    }
-
-    public void setDeck(List<Card> deck) {
-        this.deck = deck;
-    }
-
-    // Methode zum Handhaben des Kaufens von Kartenpaketen
-    public void buyCardPackage(List<Card> packageCards) {
-        if (coins < 5) {
-            throw new IllegalStateException("Not enough coins!");
+    // Methode zum Abziehen von Coins
+    public boolean UserCoins(int amount) {
+        if (this.coins >= amount) {
+            this.coins -= amount;
+            return true;
+        } else {
+            System.out.println("Insufficient coins to complete the transaction.");
+            return false;
         }
-        coins -= 5;
-        stack.addAll(packageCards);
     }
-
 }
