@@ -58,13 +58,10 @@ public class User {
     }
 
     // Methode zum Abziehen von Coins
-    public boolean UserCoins(int amount) {
-        if (this.coins >= amount) {
-            this.coins -= amount;
-            return true;
-        } else {
-            System.out.println("Insufficient coins to complete the transaction.");
-            return false;
+    public void deductCoins(int amount) {
+        if (coins < amount) {
+            throw new IllegalArgumentException("Nicht genügend Münzen!");
         }
+        this.coins -= amount;
     }
 }

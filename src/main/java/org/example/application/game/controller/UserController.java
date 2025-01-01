@@ -44,4 +44,3 @@ public class UserController extends Controller{
         return json(Status.OK, users);
     }
 }
-

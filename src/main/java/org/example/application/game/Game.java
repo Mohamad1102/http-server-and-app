@@ -56,14 +56,16 @@ public class Game implements Application {
         UserRepository userRepository = new UserDbRepository(connectionPool);
         TokenService tokenService = new TokenService();
         UserService userService = new UserService(userRepository, tokenService);
-        CardPackageRepository repository = new CardPackageDbRepository(); // Verwende die konkrete Implementierung
-        CardPackageService cardPackageService = new CardPackageService(repository);
+        CardPackageRepository cardRepository = new CardPackageDbRepository(); // Verwende die konkrete Implementierung
+        CardPackageService cardPackageService = new CardPackageService(cardRepository, userRepository);
 
         this.router.addRoute("/users", new UserController(userService));
         this.router.addRoute("/sessions", new SessionController(userService));
         this.router.addRoute("/wait", new WaitController());
         this.router.addRoute("/health", new HealthController());
         this.router.addRoute("/packages", new CardPackageController(cardPackageService)); // Stelle sicher, dass die Controller-Instanziierung korrekt ist
+        this.router.addRoute("/transactions/packages", new CardPackageController(cardPackageService)); // Route für Paket kaufen
+
 
     }
 
