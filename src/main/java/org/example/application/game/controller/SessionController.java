@@ -1,8 +1,6 @@
 package org.example.application.game.controller;
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.EntityNotFoundException;
-import org.example.application.game.repository.UserMemoryRepository;
-import org.example.application.game.repository.UserRepository;
 import org.example.application.game.service.UserService;
 import org.example.server.http.Method;
 import org.example.server.http.Request;

@@ -21,4 +21,7 @@ public class CardPackageDbRepository implements CardPackageRepository{
         // Hier könnte man die Logik hinzufügen, um das Paket einem Benutzer zuzuweisen
         System.out.println("Package assigned to user: " + user.getUsername());
     }
+    public void removePackage(Package cardPackage) {
+        packages.remove(cardPackage); // Entfernt das Paket
+    }
 }

@@ -57,12 +57,18 @@ public class CardPackageController extends Controller {
     private Response buyPackage(Request request) {
         try {
             // Token aus dem Header extrahieren
-            String token = request.getHeader("Authorization");
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return json(Status.UNAUTHORIZED, "{\"error\": \"Authorization header is missing or invalid\"}");
+            }
 
-            // Paket kaufen
+            // Extrahiere den Token ohne "Bearer "
+            String token = authHeader.substring(7);
+
+            // Paket kaufen (Token direkt verwenden)
             boolean isPurchased = cardPackageService.buyPackage(token);
 
-            System.out.println("BUY PAKAGE!!!!");
+            System.out.println("BUY PACKAGE!!!!");
             if (isPurchased) {
                 return json(Status.CREATED, "{\"message\": \"Package successfully purchased\"}");
             } else {
@@ -73,13 +79,5 @@ public class CardPackageController extends Controller {
             // Fehlerbehandlung bei ungültigem Token oder anderen Fehlern
             return json(Status.CONFLICT, "{\"error\": \"" + e.getMessage() + "\"}");
         }
-    }
-
-    // Hilfsmethode für JSON-Antworten
-    private Response json(Status status, String body) {
-        Response response = new Response();
-        response.setStatus(status);
-        response.setBody(body);
-        return response;
     }
 }

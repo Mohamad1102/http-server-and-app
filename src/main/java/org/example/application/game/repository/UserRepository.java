@@ -17,5 +17,7 @@ public interface UserRepository {
     boolean findByUsername(String username);
 
     boolean isValidUser(String username, String password);
+    void updateCoins(String username, int coins);
+    Optional<User> findUserByUsername(String username);
 
 }

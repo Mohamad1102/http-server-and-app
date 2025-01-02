@@ -9,4 +9,7 @@ public interface CardPackageRepository {
     void savePackage(Package cardPackage);
     Optional<Package> findAvailablePackage();
     void assignPackageToUser(Package cardPackage, User user);
+    // Paket aus der Liste entfernen
+    public void removePackage(Package cardPackage);
+
 }

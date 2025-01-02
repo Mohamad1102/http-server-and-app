@@ -27,7 +27,6 @@ public class UserController extends Controller{
         if (request.getMethod().equals(Method.GET)) {
             return readAll();
         }
-
         return null;
     }
 

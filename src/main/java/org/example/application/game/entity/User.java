@@ -15,10 +15,11 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, int coins) {
+    public User(String id, String username, String password, int coins) {
+        this.id = id;
         this.username = username;
         this.password = password;
-        this.coins = 20;
+        this.coins = coins;
     }
 
     public String getId() {
@@ -59,9 +60,10 @@ public class User {
 
     // Methode zum Abziehen von Coins
     public void deductCoins(int amount) {
-        if (coins < amount) {
-            throw new IllegalArgumentException("Nicht genügend Münzen!");
+        if (coins >= amount) {
+            coins -= amount;
+        } else {
+            throw new IllegalArgumentException("Not enough coins!");
         }
-        this.coins -= amount;
     }
 }
