@@ -59,28 +59,56 @@ public class CardPackageService {
 
         System.out.println("Aktuelle Coins aus der Datenbank: " + user.getCoins());
 
-        // 5. Coins prüfen
-        if (user.getCoins() < 5) {
-            throw new IllegalArgumentException("Not enough coins!");
-        }
-
-        // 6. Coins abziehen und lokal aktualisieren
-        user.deductCoins(5);
-        System.out.println("Coins nach Abzug: " + user.getCoins());
-
-        // 7. Coins in der Datenbank aktualisieren
-        userRepository.updateCoins(username, user.getCoins());
-
-        // 8. Paket prüfen und zuweisen
+        // 5. Paket prüfen
         Optional<Package> packageOpt = cardPackageRepository.findAvailablePackage();
         if (packageOpt.isEmpty()) {
             throw new IllegalArgumentException("No packages available!");
         }
+
         Package cardPackage = packageOpt.get();
+
+        // 6. Coins prüfen
+        if (user.getCoins() < 5) {
+            throw new IllegalArgumentException("Not enough coins!");
+        }
+
+        // 7. Coins abziehen und lokal aktualisieren
+        user.deductCoins(5);
+        System.out.println("Coins nach Abzug: " + user.getCoins());
+
+        // 8. Coins in der Datenbank aktualisieren
+        userRepository.updateCoins(username, user.getCoins());
+
+        // 9. Paket zuweisen
         cardPackageRepository.assignPackageToUser(cardPackage, user); // Benutzer mit aktualisierten Coins übergeben
         cardPackageRepository.removePackage(cardPackage); // Paket entfernen
 
         return true;
+    }
+
+
+    public List<Card> getUserCards(String token) {
+        // 1. Token prüfen
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("User not logged in! No token provided.");
+        }
+
+        // 2. Benutzername aus Token extrahieren
+        String username = extractUsernameFromToken(token);
+        System.out.println("USERNAME IS: " + username);
+
+        // 3. Benutzer validieren
+        boolean userLoggedIn = userRepository.findByUsername(username);
+        if (!userLoggedIn) {
+            throw new IllegalArgumentException("User not logged in or invalid username!");
+        }
+
+        // 4. Benutzer-Objekt aus der Datenbank laden
+        User user = userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // 5. Alle Karten des Benutzers zurückgeben
+        return user.getCards();  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.
     }
 
 }

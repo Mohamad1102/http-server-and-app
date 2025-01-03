@@ -11,7 +11,10 @@ public class CardPackageDbRepository implements CardPackageRepository{
     private final List<Package> packages = new ArrayList<>();
     @Override
     public void savePackage(Package cardPackage) {
+        System.out.println("Packages before adding: " + packages.size());
         packages.add(cardPackage);
+        System.out.println("Packages after adding: " + packages.size());
+
         System.out.println("Package saved: " + cardPackage);
     }
     public Optional<Package> findAvailablePackage() {
@@ -22,6 +25,9 @@ public class CardPackageDbRepository implements CardPackageRepository{
         System.out.println("Package assigned to user: " + user.getUsername());
     }
     public void removePackage(Package cardPackage) {
+        System.out.println("Packages before removing: " + packages.size());
         packages.remove(cardPackage); // Entfernt das Paket
+        System.out.println("!!!!PAKAGE DELETED!!!!");
+        System.out.println("Packages after removing: " + packages.size());
     }
 }

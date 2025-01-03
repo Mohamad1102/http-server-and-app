@@ -12,7 +12,10 @@ public class User {
 
     private int coins;
 
+    private List<Card> cards;  // Liste der Karten des Benutzers
+
     public User() {
+        this.cards = new ArrayList<>();  // Initialisieren der Kartenliste
     }
 
     public User(String id, String username, String password, int coins) {
@@ -65,5 +68,24 @@ public class User {
         } else {
             throw new IllegalArgumentException("Not enough coins!");
         }
+    }
+
+    // Getter und Setter für die Kartenliste
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
+    }
+
+    // Methode, um eine Karte hinzuzufügen
+    public void addCard(Card card) {
+        this.cards.add(card);
+    }
+
+    // Methode, um eine Karte zu entfernen
+    public void removeCard(Card card) {
+        this.cards.remove(card);
     }
 }
