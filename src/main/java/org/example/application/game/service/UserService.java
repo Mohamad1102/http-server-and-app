@@ -2,13 +2,11 @@ package org.example.application.game.service;
 
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.EntityNotFoundException;
+import org.example.application.game.exception.SQLException;
 import org.example.application.game.exception.UserAlreadyExistsException;
 import org.example.application.game.repository.UserRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -21,24 +19,20 @@ public class UserService {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
     }
-    public User create(User user) throws UserAlreadyExistsException {
+    public User create(User user) throws UserAlreadyExistsException{
         // Prüfen, ob der Benutzer existiert
         if (userRepository.findByUsername(user.getUsername())) {
             System.out.println("user exists");
             throw new UserAlreadyExistsException("User '" + user.getUsername() + "' already exists.");
         }
         // Benutzer speichern
-        user.setId(UUID.randomUUID().toString());
+        user.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
-    public List<User> getAll() {
+    public ArrayList<User> getAll() {
         return userRepository.findAll();
     }
 
-    public User getById(int id) {
-        return userRepository.find(id)
-                .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), id));
-    }
     public String login(User user) {
         // Benutzername und Passwort prüfen
         if (!userRepository.isValidUser(user.getUsername(), user.getPassword())) {
@@ -50,5 +44,17 @@ public class UserService {
         String token = tokenService.CreatToken(user.getUsername());
         tokens.put(user.getUsername(), token);
         return token;
+    }
+
+    public User updateUser(String username, User updatedUser) throws SQLException, java.sql.SQLException {
+        // Benutzer aus der Datenbank holen
+        User user = userRepository.findUserByUsername(username);
+        if (user != null) {
+            // Aktualisieren der Felder
+            user.setPassword(updatedUser.getPassword());
+            user.setCoins(updatedUser.getCoins());
+            return userRepository.save(user);
+        }
+        return null;
     }
 }

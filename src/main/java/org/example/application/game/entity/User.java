@@ -2,9 +2,10 @@ package org.example.application.game.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class User {
-    private String id;
+    private UUID id;
 
     private String username;
 
@@ -12,24 +13,25 @@ public class User {
 
     private int coins;
 
-    private List<Card> cards;  // Liste der Karten des Benutzers
+    private ArrayList<Card> cards;  // Liste der Karten des Benutzers
 
     public User() {
         this.cards = new ArrayList<>();  // Initialisieren der Kartenliste
     }
 
-    public User(String id, String username, String password, int coins) {
+    public User(UUID id, String username, String password, int coins) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.coins = coins;
+        this.cards = new ArrayList<>();  // Initialisieren der Kartenliste
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -71,11 +73,11 @@ public class User {
     }
 
     // Getter und Setter für die Kartenliste
-    public List<Card> getCards() {
+    public ArrayList<Card> getCards() {
         return cards;
     }
 
-    public void setCards(List<Card> cards) {
+    public void setCards(ArrayList<Card> cards) {
         this.cards = cards;
     }
 
@@ -84,8 +86,4 @@ public class User {
         this.cards.add(card);
     }
 
-    // Methode, um eine Karte zu entfernen
-    public void removeCard(Card card) {
-        this.cards.remove(card);
-    }
 }

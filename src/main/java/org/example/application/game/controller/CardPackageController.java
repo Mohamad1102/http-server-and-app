@@ -1,5 +1,6 @@
 package org.example.application.game.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.application.game.entity.Card;
 import org.example.application.game.service.CardPackageService;
 import org.example.server.http.Method;
@@ -7,9 +8,11 @@ import org.example.server.http.Request;
 import org.example.server.http.Response;
 import org.example.server.http.Status;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class CardPackageController extends Controller {
+
     private final CardPackageService cardPackageService;
 
     public CardPackageController(CardPackageService cardPackageService) {
@@ -18,47 +21,43 @@ public class CardPackageController extends Controller {
 
     @Override
     public Response handle(Request request) {
-        // Überprüfen, ob es sich um eine POST-Anfrage handelt
         if (request.getMethod().equals(Method.POST)) {
             if (request.getPath().equals("/packages")) {
+                System.out.println("!!CREATE PACKAGES!!");
                 // Anfrage für das Erstellen eines neuen Pakets
                 return createPackage(request);
             } else if (request.getPath().equals("/transactions/packages")) {
+                System.out.println("!!BUY PACKAGES!!");
                 // Anfrage für den Kauf eines Pakets
                 return buyPackage(request);
             }
-        }
-
-        // Überprüfen, ob es sich um eine GET-Anfrage für Karten handelt
-        if (request.getMethod().equals(Method.GET)) {
+        } else if (request.getMethod().equals(Method.GET)) {
             if (request.getPath().equals("/cards")) {
-                // Anfrage für das Abrufen der Karten eines Benutzers
                 return getCards(request);
             }
         }
-
-        // Für andere Anfragen (Methoden oder Pfade) eine Fehlerantwort zurückgeben
-        return json(Status.NOT_FOUND, "{\"error\": \"Method or path not allowed\"}");
+        return json(Status.NOT_FOUND, "{\"error\": \"Method or path not allowed\"}"); // TODO METHOD NOT FOUND
     }
 
     private Response createPackage(Request request) {
         try {
-            // request --> Liste von Karten
-            List<Card> cards = fromBody(request.getBody(), List.class);  // Deserialisierung von JSON zu List<Card>
+            // Karten aus der Anfrage lesen
+            ArrayList<Card> cards = super.fromBody(request.getBody(), new TypeReference<ArrayList<Card>>() {
+            });
 
-            // Paket erstellen und speichern
-            boolean isCreated = cardPackageService.createPackage(cards);
+            // Token aus dem Header extrahieren
+            String authHeader = request.getHeader("Authorization");
+            String token = extractTokenFromAuthHeader(authHeader);
 
-            if (isCreated) {
-                System.out.println("IS CREATED!!");
-                return json(Status.CREATED, "{\"message\": \"Card package successfully created\"}");
+            System.out.println("Eingeloggte User is " + token);
 
-            } else {
-                return json(Status.CONFLICT, "{\"error\": \"Conflict: Card package creation failed\"}");
-            }
+            // Paket erstellen
+            UUID packageId = cardPackageService.createPackage(cards, token);
+
+            // Erfolgreiche Antwort zurückgeben
+            return json(Status.CREATED, "{\"packageId\": \"" + packageId + "\"}");
         } catch (IllegalArgumentException e) {
-            // Falls eine Ausnahme geworfen wird (z.B. ungültige Kartenzahl)
-            return json(Status.CONFLICT, "{\"error\": \"" + e.getMessage() + "\"}");
+            return json(Status.NOT_FOUND, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -66,28 +65,28 @@ public class CardPackageController extends Controller {
         try {
             // Token aus dem Header extrahieren
             String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return json(Status.UNAUTHORIZED, "{\"error\": \"Authorization header is missing or invalid\"}");
-            }
+            String token = extractTokenFromAuthHeader(authHeader);
 
-            // Extrahiere den Token ohne "Bearer "
-            String token = authHeader.substring(7);
-
-            // Paket kaufen (Token direkt verwenden)
+            // Paket kaufen
             boolean isPurchased = cardPackageService.buyPackage(token);
 
-            System.out.println("BUY PACKAGE!!!!");
             if (isPurchased) {
                 return json(Status.CREATED, "{\"message\": \"Package successfully purchased\"}");
             } else {
                 return json(Status.CONFLICT, "{\"error\": \"Package purchase failed\"}");
             }
-
         } catch (IllegalArgumentException e) {
-            // Fehlerbehandlung bei ungültigem Token oder anderen Fehlern
             return json(Status.CONFLICT, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
+
+    private String extractTokenFromAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Authorization header is missing or invalid");
+        }
+        return authHeader.substring(7);
+    }
+
     private Response getCards(Request request) {
         try {
             // Token aus dem Header extrahieren
@@ -98,9 +97,10 @@ public class CardPackageController extends Controller {
 
             // Extrahiere den Token ohne "Bearer "
             String token = authHeader.substring(7);
+            System.out.println("The USERNAME: " + token);
 
             // Benutzerkarten über den Service abrufen
-            List<Card> userCards = cardPackageService.getUserCards(token);
+            ArrayList<Card> userCards = cardPackageService.getUserCards(token);
 
             // Wenn keine Karten vorhanden sind
             if (userCards == null || userCards.isEmpty()) {

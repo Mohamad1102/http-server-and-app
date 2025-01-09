@@ -9,7 +9,7 @@ echo "- pause: optional, if set, then script will pause after each block"
 echo .
 
 
-pauseFlag=0
+pauseFlag=1
 for arg in "$@"; do
     if [ "$arg" == "pause" ]; then
         pauseFlag=1

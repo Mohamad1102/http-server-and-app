@@ -2,14 +2,13 @@ package org.example.application.game;
 
 import org.example.application.game.controller.*;
 import org.example.application.game.data.ConnectionPool;
+import org.example.application.game.exception.BadRequestException;
 import org.example.application.game.exception.UserAlreadyExistsException;
-import org.example.application.game.repository.CardPackageDbRepository;
-import org.example.application.game.repository.CardPackageRepository;
-import org.example.application.game.repository.UserDbRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.*;
 import org.example.application.game.exception.ControllerNotFoundException;
 import org.example.application.game.routing.Router;
 import org.example.application.game.service.CardPackageService;
+import org.example.application.game.service.DeckService;
 import org.example.application.game.service.TokenService;
 import org.example.application.game.service.UserService;
 import org.example.server.Application;
@@ -46,6 +45,11 @@ public class Game implements Application {
             Response response = new Response();
             response.setStatus(Status.CONFLICT);
             return response;
+        } catch (BadRequestException e) {
+            Response response = new Response();
+            response.setStatus(Status.BAD_REQUEST);
+            return response;
+
         }
     }
 
@@ -56,8 +60,10 @@ public class Game implements Application {
         UserRepository userRepository = new UserDbRepository(connectionPool);
         TokenService tokenService = new TokenService();
         UserService userService = new UserService(userRepository, tokenService);
-        CardPackageRepository cardRepository = new CardPackageDbRepository(); // Verwende die konkrete Implementierung
+        CardPackageRepository cardRepository = new CardPackageDbRepository(connectionPool); // Verwende die konkrete Implementierung
         CardPackageService cardPackageService = new CardPackageService(cardRepository, userRepository);
+        DeckRepository deckRepository = new DeckDbRepository(connectionPool);
+        DeckService deckService = new DeckService(deckRepository, userRepository, cardRepository);
 
         this.router.addRoute("/users", new UserController(userService));
         this.router.addRoute("/sessions", new SessionController(userService));
@@ -65,6 +71,8 @@ public class Game implements Application {
         this.router.addRoute("/health", new HealthController());
         this.router.addRoute("/packages", new CardPackageController(cardPackageService)); // Stelle sicher, dass die Controller-Instanziierung korrekt ist
         this.router.addRoute("/transactions/packages", new CardPackageController(cardPackageService)); // Route für Paket kaufen
+        this.router.addRoute("/cards", new CardPackageController(cardPackageService));
+        this.router.addRoute("/deck", new DeckController(deckService));
 
 
     }

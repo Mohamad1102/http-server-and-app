@@ -1,4 +1,5 @@
 package org.example.application.game.controller;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.EntityNotFoundException;
 import org.example.application.game.service.UserService;
@@ -23,7 +24,8 @@ public class SessionController extends Controller{
     }
     private Response login(Request request) {
         // Request-Body in User-Objekt konvertieren
-        User user = fromBody(request.getBody(), User.class);
+        User user = fromBody(request.getBody(), new TypeReference<User>() {
+        });
 
         try {
             String token = userService.login(user);

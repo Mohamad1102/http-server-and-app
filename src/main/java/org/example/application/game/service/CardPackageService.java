@@ -6,14 +6,14 @@ import org.example.application.game.entity.User;
 import org.example.application.game.repository.CardPackageRepository;
 import org.example.application.game.repository.UserRepository;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 public class CardPackageService {
 
     private final CardPackageRepository cardPackageRepository;
     private final UserRepository userRepository;
-
 
     // Konstruktor-Injektion
     public CardPackageService(CardPackageRepository cardPackageRepository, UserRepository userRepository) {
@@ -28,15 +28,31 @@ public class CardPackageService {
         return token.split("-")[0];
     }
 
-    public boolean createPackage(List<Card> cards) {
-        if (cards.size() != 5) {
-            throw new IllegalArgumentException("Es müssen genau 5 Karten im Paket sein.");
+    // Methode, um ein neues Package zu erstellen (nur für admin)
+    public UUID createPackage(ArrayList<Card> cards, String token) {
+        // 1. Benutzer validieren
+        String username = extractUsernameFromToken(token);
+        User adminUser = userRepository.findUserByUsername(username);
+        if (username == null) {
+            throw new IllegalArgumentException("User not found");
         }
-        // Paket erstellen und speichern
-        Package cardPackage = new Package(cards);  // Vermeide java.lang.Package
-        cardPackageRepository.savePackage(cardPackage);
-        return true;
+
+        // 2. Nur der Admin kann ein Paket erstellen
+        if (!adminUser.getUsername().equals("admin")) {
+            throw new IllegalArgumentException("Nur der Admin kann ein Paket erstellen.");
+        }
+
+        if (cards.size() != 5) {  //TODO IN SERVICE
+            throw new IllegalArgumentException("Ein Paket muss genau 5 Karten enthalten.");
+        }
+
+        System.out.println("!!ZUR REPOSITORY!!");
+        // 3. Paket erstellen
+        UUID id = cardPackageRepository.createPackageForAdmin(cards, adminUser);
+        return id;
     }
+
+    // Methode, um ein Paket zu kaufen
     public boolean buyPackage(String token) {
         // 1. Token prüfen
         if (token == null || token.isEmpty()) {
@@ -45,7 +61,6 @@ public class CardPackageService {
 
         // 2. Benutzername aus Token extrahieren
         String username = extractUsernameFromToken(token);
-        System.out.println("USERNAME IS: " + username);
 
         // 3. Benutzer validieren
         boolean userLoggedIn = userRepository.findByUsername(username);
@@ -54,10 +69,10 @@ public class CardPackageService {
         }
 
         // 4. Benutzer-Objekt aus der Datenbank laden
-        User user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        System.out.println("Aktuelle Coins aus der Datenbank: " + user.getCoins());
+        User user = userRepository.findUserByUsername(username);
+        if (username == null) {
+            throw new IllegalArgumentException("User not found");
+        }
 
         // 5. Paket prüfen
         Optional<Package> packageOpt = cardPackageRepository.findAvailablePackage();
@@ -74,41 +89,38 @@ public class CardPackageService {
 
         // 7. Coins abziehen und lokal aktualisieren
         user.deductCoins(5);
-        System.out.println("Coins nach Abzug: " + user.getCoins());
 
         // 8. Coins in der Datenbank aktualisieren
         userRepository.updateCoins(username, user.getCoins());
 
         // 9. Paket zuweisen
-        cardPackageRepository.assignPackageToUser(cardPackage, user); // Benutzer mit aktualisierten Coins übergeben
-        cardPackageRepository.removePackage(cardPackage); // Paket entfernen
+        cardPackageRepository.assignPackageToUser(cardPackage.getId(), user);
 
         return true;
     }
-
-
-    public List<Card> getUserCards(String token) {
-        // 1. Token prüfen
+    public ArrayList<Card> getUserCards(String token) {
+        // 1. Token prüfen (ob es null oder leer ist)
         if (token == null || token.isEmpty()) {
             throw new IllegalArgumentException("User not logged in! No token provided.");
         }
 
-        // 2. Benutzername aus Token extrahieren
+        // 2. Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
-        System.out.println("USERNAME IS: " + username);
 
-        // 3. Benutzer validieren
-        boolean userLoggedIn = userRepository.findByUsername(username);
-        if (!userLoggedIn) {
-            throw new IllegalArgumentException("User not logged in or invalid username!");
+        System.out.println("USERNAME:" + username);
+        // 3. Benutzer-Objekt aus der Datenbank laden
+        User user = userRepository.findUserByUsername(username);
+        if (username == null) {
+            throw new IllegalArgumentException("User not found");
         }
 
-        // 4. Benutzer-Objekt aus der Datenbank laden
-        User user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        ArrayList<Card> mycards = cardPackageRepository.findCardsByUsername(user.getId());
 
-        // 5. Alle Karten des Benutzers zurückgeben
-        return user.getCards();  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.
+        System.out.println("NACH USERNAME");
+
+
+
+        // 4. Alle Karten des Benutzers zurückgeben
+        return mycards;  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.
     }
-
 }

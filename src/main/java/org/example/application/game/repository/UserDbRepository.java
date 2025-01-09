@@ -5,13 +5,13 @@ import org.example.application.game.entity.User;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class UserDbRepository implements UserRepository{
+    private final ConnectionPool connectionPool;
     private final static String NEW_USER
             = "INSERT INTO users VALUES (?, ?, ?)";
-    private final ConnectionPool connectionPool;
     public UserDbRepository(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
     }
@@ -21,7 +21,7 @@ public class UserDbRepository implements UserRepository{
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(NEW_USER)
         ) {
-            preparedStatement.setString(1, user.getId());
+            preparedStatement.setObject(1, user.getId());
             preparedStatement.setString(2, user.getUsername());
             preparedStatement.setString(3, user.getPassword());
             preparedStatement.execute();
@@ -31,9 +31,10 @@ public class UserDbRepository implements UserRepository{
             throw new RuntimeException(e);
         }
     }
+
     @Override
-    public List<User> findAll() {
-        List<User> users = new ArrayList<>();
+    public ArrayList<User> findAll() {
+        ArrayList<User> users = new ArrayList<>();
         String query = "SELECT id, username, password, coins FROM users";  // Abfrage für alle Benutzer
 
         System.out.println("Vor der Verbindung zur Datenbank");
@@ -48,7 +49,7 @@ public class UserDbRepository implements UserRepository{
 
             // Durch die ResultSet-Ergebnisse iterieren
             while (rs.next()) {
-                String id = rs.getString("id");          // ID des Benutzers
+                UUID id = rs.getObject("id", UUID.class);          // ID des Benutzers
                 String username = rs.getString("username"); // Username des Benutzers
                 String password = rs.getString("password"); // Passwort des Benutzers
                 int coins = rs.getInt("coins");           // Coins des Benutzers
@@ -72,18 +73,6 @@ public class UserDbRepository implements UserRepository{
         System.out.println("Rückgabe der Benutzer: " + users.size() + " Benutzer gefunden.");
         return users;  // Alle Benutzer zurückgeben
     }
-
-
-
-    @Override
-    public Optional<User> find(int id) {
-        return Optional.empty();
-    }
-    @Override
-    public User delete(User user) {
-        return null;
-    }
-
     public boolean findByUsername(String username) {
         String query = "SELECT COUNT(*) FROM users u WHERE u.username = ?";
         try (
@@ -136,24 +125,29 @@ public class UserDbRepository implements UserRepository{
         }
         System.out.println("Updating coins for user: " + username + " to " + coins);
     }
-    public Optional<User> findUserByUsername(String username) {
+    public User findUserByUsername(String username) {
         String query = "SELECT id, username, password, coins FROM users WHERE username = ?";
+        System.out.println("findUserByUsername STATMENT");
         try (Connection connection = connectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, username);
+            System.out.println("TRY 1");
             try (ResultSet rs = stmt.executeQuery()) {
+                System.out.println("TRY 2");
                 if (rs.next()) {
-                    String id = rs.getString("id");
+                    System.out.println("2.1");
+                    UUID id = UUID.fromString(rs.getString("id"));
+                    System.out.println("TRY 2.2");
                     String password = rs.getString("password");
                     int coins = rs.getInt("coins");
                     User user = new User(id, username, password, coins); // Erstelle User mit aktuellen Coins
-                    return Optional.of(user);
+                    return user;
                 }
+                System.out.println("Verbindung Erfolgreich für findUserByUsername");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return Optional.empty();
+        return null;
     }
-
 }

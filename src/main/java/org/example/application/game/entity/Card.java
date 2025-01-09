@@ -6,20 +6,17 @@ public class Card {
     private UUID id;  // UUID statt String
     private String name;
     private double damage;
-    private final CardType cardType;  // Verwendet Enum statt boolean
+    private String cardType;  // Verwendet Enum statt boolean
 
     // Constructor
-    public Card(String name, double damage, CardType cardType) {
+    public Card(){}
+    public Card(String name, double damage, String cardType) {
         this.id = UUID.randomUUID();  // automatisch eine neue UUID erzeugen
         this.name = name;
         this.damage = damage;
         this.cardType = cardType;
     }
 
-    public enum CardType {
-        MONSTER,
-        SPELL
-    }
 
     // Getter und Setter
     public UUID getId() {
@@ -46,7 +43,17 @@ public class Card {
         this.damage = damage;
     }
 
-    public CardType getCardType() {
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
+    }
+
+    public String getCardType() {
         return cardType;
+    }
+
+    // Überschreibe toString() für eine lesbare Ausgabe
+    @Override
+    public String toString() {
+        return "Card{name='" + name + "', damage=" + damage + ", cardType='" + cardType + "'}";
     }
 }

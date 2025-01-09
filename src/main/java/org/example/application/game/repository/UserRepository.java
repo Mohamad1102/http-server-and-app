@@ -1,23 +1,18 @@
 package org.example.application.game.repository;
 
+import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 
-import java.util.List;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository {
     User save(User user);
-
-    List<User> findAll();
-
-    Optional<User> find(int id);
-
-    User delete(User user);
-
+    ArrayList<User> findAll();
     boolean findByUsername(String username);
-
     boolean isValidUser(String username, String password);
     void updateCoins(String username, int coins);
-    Optional<User> findUserByUsername(String username);
-
+    User findUserByUsername(String username);
 }
