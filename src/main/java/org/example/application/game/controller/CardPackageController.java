@@ -2,6 +2,7 @@ package org.example.application.game.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.application.game.entity.Card;
+import org.example.application.game.exception.CardPackageCreationException;
 import org.example.application.game.service.CardPackageService;
 import org.example.server.http.Method;
 import org.example.server.http.Request;
@@ -39,7 +40,7 @@ public class CardPackageController extends Controller {
         return json(Status.NOT_FOUND, "{\"error\": \"Method or path not allowed\"}"); // TODO METHOD NOT FOUND
     }
 
-    private Response createPackage(Request request) {
+    private Response createPackage(Request request) throws CardPackageCreationException {
         try {
             // Karten aus der Anfrage lesen
             ArrayList<Card> cards = super.fromBody(request.getBody(), new TypeReference<ArrayList<Card>>() {

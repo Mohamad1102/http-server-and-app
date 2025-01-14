@@ -3,14 +3,12 @@ package org.example.application.game;
 import org.example.application.game.controller.*;
 import org.example.application.game.data.ConnectionPool;
 import org.example.application.game.exception.BadRequestException;
+import org.example.application.game.exception.CardPackageCreationException;
 import org.example.application.game.exception.UserAlreadyExistsException;
 import org.example.application.game.repository.*;
 import org.example.application.game.exception.ControllerNotFoundException;
 import org.example.application.game.routing.Router;
-import org.example.application.game.service.CardPackageService;
-import org.example.application.game.service.DeckService;
-import org.example.application.game.service.TokenService;
-import org.example.application.game.service.UserService;
+import org.example.application.game.service.*;
 import org.example.server.Application;
 import org.example.server.http.Request;
 import org.example.server.http.Response;
@@ -49,10 +47,12 @@ public class Game implements Application {
             Response response = new Response();
             response.setStatus(Status.BAD_REQUEST);
             return response;
-
+        } catch (CardPackageCreationException e) {
+            Response response = new Response();
+            response.setStatus(Status.CONFLICT);
+            return response;
         }
     }
-
     private void initializeRoutes() {
 
         ConnectionPool connectionPool = new ConnectionPool();
@@ -64,6 +64,11 @@ public class Game implements Application {
         CardPackageService cardPackageService = new CardPackageService(cardRepository, userRepository);
         DeckRepository deckRepository = new DeckDbRepository(connectionPool);
         DeckService deckService = new DeckService(deckRepository, userRepository, cardRepository);
+        TradingDealRepository tradingDealRepo = new TradingDealRepository(connectionPool);
+        CompletedTradeRepository completedTradeRepo = new CompletedTradeRepository(connectionPool);
+        TradeService tradeService = new TradeService(tradingDealRepo, completedTradeRepo, userRepository);
+
+
 
         this.router.addRoute("/users", new UserController(userService));
         this.router.addRoute("/sessions", new SessionController(userService));
@@ -73,6 +78,10 @@ public class Game implements Application {
         this.router.addRoute("/transactions/packages", new CardPackageController(cardPackageService)); // Route für Paket kaufen
         this.router.addRoute("/cards", new CardPackageController(cardPackageService));
         this.router.addRoute("/deck", new DeckController(deckService));
+        this.router.addRoute("/tradings", new TradeController(tradeService));
+        this.router.addRoute("/tradings/:tradingdealid", new TradeController(tradeService));
+
+
 
 
     }

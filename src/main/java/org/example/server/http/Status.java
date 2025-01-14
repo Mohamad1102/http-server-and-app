@@ -6,6 +6,7 @@ public enum Status {
     NO_CONTENT(204, "No Content"),
     BAD_REQUEST(400, "BAD_REQUEST"),
     UNAUTHORIZED (401, "NON Existent"),
+    FORBIDDEN (403, "FORBIDDEN"),
     NOT_FOUND(404, "Not Found"),
     METHODE_NOT_FOUND(405, "METHODE NOT FOUND"),
     CONFLICT(409, "Conflict"),

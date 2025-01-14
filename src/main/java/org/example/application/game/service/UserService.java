@@ -29,9 +29,11 @@ public class UserService {
         user.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
-    public ArrayList<User> getAll() {
-        return userRepository.findAll();
+    public User getUserData(String username) {
+        // Benutzer aus dem Repository abrufen
+        return userRepository.getUserData(username);
     }
+
 
     public String login(User user) {
         // Benutzername und Passwort prüfen
@@ -46,15 +48,17 @@ public class UserService {
         return token;
     }
 
-    public User updateUser(String username, User updatedUser) throws SQLException, java.sql.SQLException {
-        // Benutzer aus der Datenbank holen
+    public User updateUser(String username, User updatedUser) {
+        // Benutzer anhand des Benutzernamens abrufen
         User user = userRepository.findUserByUsername(username);
         if (user != null) {
-            // Aktualisieren der Felder
-            user.setPassword(updatedUser.getPassword());
-            user.setCoins(updatedUser.getCoins());
-            return userRepository.save(user);
+            // Aktualisiere nur die Felder name, bio und image
+            user.setName(updatedUser.getName());
+            user.setBio(updatedUser.getBio());
+            user.setImage(updatedUser.getImage());
+            return userRepository.updateUser(user);
         }
+        // Benutzer existiert nicht
         return null;
     }
 }

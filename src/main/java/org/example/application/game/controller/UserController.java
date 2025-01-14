@@ -26,10 +26,10 @@ public class UserController extends Controller{
             return create(request);
         }
         if (request.getMethod().equals(Method.GET)) {
-            return readAll();
+            return getUserData(request);
         }
-        if (request.getMethod().equals(Method.GET)) {
-            //return update(request);
+        if (request.getMethod().equals(Method.PUT)) {
+            return updateUser(request);
         }
         return null;
     }
@@ -42,26 +42,76 @@ public class UserController extends Controller{
 
         return json(Status.CREATED, user.getUsername() + " was successfully created!");
     }
-    private Response readAll() {
-        ArrayList<User> users = userService.getAll();
-
-        return json(Status.OK, users);
-    }
-   /* private Response update(Request request) throws SQLException {
+    private Response getUserData(Request request) {
         // Benutzername aus der URL extrahieren
-        String username = request.getPath().substring(request.getPath().lastIndexOf("/") + 1);
+        String usernameFromUrl = request.getPath().substring(request.getPath().lastIndexOf("/") + 1);
+
+        // Token aus den Headern extrahieren
+        String authorizationHeader = request.getHeader("Authorization"); // Verwende getHeader statt getHeaders, da es sich um eine einzelne Header-Abfrage handelt
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return json(Status.UNAUTHORIZED, "{\"error\": \"Missing or invalid token\"}");
+        }
+
+        // Token verarbeiten und den Benutzernamen extrahieren
+        String token = authorizationHeader.substring("Bearer ".length());
+        String usernameFromToken = token.replace("-mtcgToken", ""); // Entferne das Präfix "-mtcgToken" aus dem Token
+
+        // Überprüfung: Username im Token und URL müssen übereinstimmen
+        if (!usernameFromToken.equals(usernameFromUrl)) {
+            return json(Status.FORBIDDEN, "{\"error\": \"Token does not match username in URL\"}");
+        }
+
+        // Benutzer über den Service abrufen
+        User user = userService.getUserData(usernameFromUrl);
+
+        // Prüfen, ob der Benutzer existiert
+        if (user != null) {
+            return json(Status.OK, user); // Benutzer gefunden
+        } else {
+            return json(Status.NOT_FOUND, "{\"error\": \"User not found\"}"); // Benutzer nicht gefunden
+        }
+    }
+
+    private Response updateUser(Request request) {
+        // Überprüfung, ob der Body leer ist
+        if (request.getBody() == null || request.getBody().trim().isEmpty()) {
+            return json(Status.BAD_REQUEST, "{\"error\": \"Request body cannot be empty\"}");
+        }
+
+        // Benutzername aus der URL extrahieren
+        String usernameFromUrl = request.getPath().substring(request.getPath().lastIndexOf("/") + 1);
+
+        // Token aus den Headern extrahieren
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return json(Status.UNAUTHORIZED, "{\"error\": \"Missing or invalid token\"}");
+        }
+
+        // Token verarbeiten und den Benutzernamen extrahieren
+        String token = authorizationHeader.substring("Bearer ".length());
+        String usernameFromToken = token.replace("-mtcgToken", "");
+
+        // Überprüfung: Username im Token und URL müssen übereinstimmen
+        if (!usernameFromToken.equals(usernameFromUrl)) {
+            return json(Status.FORBIDDEN, "{\"error\": \"Token does not match username in URL\"}");
+        }
 
         // Benutzerobjekt aus dem Request-Body extrahieren
         User updatedUser = fromBody(request.getBody(), new TypeReference<User>() {});
+        System.out.println("Update Request Body: " + updatedUser);
 
         // Benutzer im Service aktualisieren
-        User user = userService.updateUser(username, updatedUser);
-        if (user != null) {
-            return json(Status.OK, "{\"message\": \"" + username + " was successfully updated!\"}");
+        try {
+            User user = userService.updateUser(usernameFromUrl, updatedUser);
+            if (user != null) {
+                return json(Status.OK, "{\"message\": \"" + usernameFromUrl + " was successfully updated!\"}");
+            } else {
+                return json(Status.NOT_FOUND, "{\"error\": \"User not found\"}");
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return json(Status.INTERNAL_SERVER_ERROR, "{\"error\": \"An error occurred while updating the user.\"}");
         }
-        return json(Status.NOT_FOUND, "{\"error\": \"User not found\"}");
     }
-
-    */
 
 }

@@ -1,6 +1,16 @@
 package org.example.application.game.exception;
 
-public class CardPackageCreationException extends Throwable {
-    public CardPackageCreationException(String errorCreatingCardPackage) {
+import org.example.server.http.Status;
+
+public class CardPackageCreationException extends RuntimeException {
+    private final Status status = Status.CONFLICT; // Status direkt initialisieren
+
+    public CardPackageCreationException(String message) {
+        super(message);
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }
+

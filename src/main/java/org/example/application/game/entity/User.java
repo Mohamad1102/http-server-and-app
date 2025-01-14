@@ -15,16 +15,24 @@ public class User {
 
     private ArrayList<Card> cards;  // Liste der Karten des Benutzers
 
+    private String name;
+    private String bio;
+
+    private String image;
+
     public User() {
         this.cards = new ArrayList<>();  // Initialisieren der Kartenliste
     }
 
-    public User(UUID id, String username, String password, int coins) {
+    public User(UUID id, String username, String password, int coins, String name, String bio, String image) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.coins = coins;
         this.cards = new ArrayList<>();  // Initialisieren der Kartenliste
+        this.name = name;
+        this.bio = bio;
+        this.image = image;
     }
 
     public UUID getId() {
@@ -61,6 +69,29 @@ public class User {
 
     public void addCoins(int amount) {
         this.coins += amount;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     // Methode zum Abziehen von Coins
