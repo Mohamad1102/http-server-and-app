@@ -1,5 +1,7 @@
 package org.example.application.game.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.UUID;
 
 public class Card {
@@ -53,36 +55,39 @@ public class Card {
 
     // Überschreibe toString() für eine lesbare Ausgabe
     @Override
+    @JsonIgnore
     public String toString() {
         return "Card{name='" + name + "', damage=" + damage + ", cardType='" + cardType + "'}";
     }
+    @JsonIgnore
     public boolean isSpellCard() {
         return "SPELL".equalsIgnoreCase(this.cardType);
     }
-
+    @JsonIgnore
     public boolean isMonsterCard() {
         return "MONSTER".equalsIgnoreCase(this.cardType);
     }
+    @JsonIgnore
     public boolean isGoblin() {
         return name.toLowerCase().contains("goblin");
     }
-
+    @JsonIgnore
     public boolean isDragon() {
         return name.toLowerCase().contains("dragon");
     }
-
+    @JsonIgnore
     public boolean isWizard() {
         return name.toLowerCase().contains("wizard");
     }
-
+    @JsonIgnore
     public boolean isKnight() {
         return name.toLowerCase().contains("knight");
     }
-
+    @JsonIgnore
     public boolean isKraken() {
         return name.toLowerCase().contains("kraken");
     }
-
+    @JsonIgnore
     public boolean isFireElf() {
         return name.toLowerCase().contains("fireelf");
     }

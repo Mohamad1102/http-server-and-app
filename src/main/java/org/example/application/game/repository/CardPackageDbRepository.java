@@ -187,7 +187,7 @@ public class CardPackageDbRepository implements CardPackageRepository {
             ArrayList<Card> cards = new ArrayList<>();
             while (rs.next()){
                 Card card= new Card();
-                UUID id = UUID.fromString(rs.getString("id"));
+                UUID id = rs.getObject("id", UUID.class);
                 String name = rs.getString("name");
                 double damage = rs.getDouble("damage");
                 String cardtype = rs.getString("card_type");

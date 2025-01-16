@@ -75,7 +75,8 @@ public class Game implements Application {
         StatsDbRepository statsDbRepository = new StatsDbRepository(connectionPool);
         StatsService statsService = new StatsService(statsDbRepository, userRepository);
         BattleRepository battleRepository = new BattleRepository(connectionPool);
-        BattleService battleService = new BattleService(battleRepository, userRepository, cardRepository);
+        EloDbRepository eloDbRepository = new EloDbRepository(connectionPool);
+        BattleService battleService = new BattleService(battleRepository, userRepository, cardRepository, statsDbRepository, eloDbRepository);
 
 
 

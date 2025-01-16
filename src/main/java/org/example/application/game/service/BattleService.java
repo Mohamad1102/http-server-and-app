@@ -2,9 +2,7 @@ package org.example.application.game.service;
 
 import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
-import org.example.application.game.repository.BattleRepository;
-import org.example.application.game.repository.CardPackageRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,14 +14,18 @@ public class BattleService {
     private final BattleRepository battleRepository;
     private final UserRepository userRepository;
     private final CardPackageRepository cardPackageRepository;
+    private final StatsDbRepository statsDbRepository;
+    private final EloDbRepository eloDbRepository;
     private final BlockingDeque<String> battleRequestQueue;
     private final BlockingDeque<String> battleResultQueue;
 
     // Konstruktor
-    public BattleService(BattleRepository battleRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository) {
+    public BattleService(BattleRepository battleRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository, StatsDbRepository statsDbRepository, EloDbRepository eloDbRepository) {
         this.battleRepository = battleRepository;
         this.userRepository = userRepository;
         this.cardPackageRepository = cardPackageRepository;
+        this.statsDbRepository = statsDbRepository;
+        this.eloDbRepository = eloDbRepository;
         this.battleRequestQueue = new LinkedBlockingDeque<>();
         this.battleResultQueue = new LinkedBlockingDeque<>();
     }
@@ -66,8 +68,9 @@ public class BattleService {
             // Speichere das Ergebnis des Kampfes und benachrichtige beide Benutzer
             battleResultQueue.add(battleResult);  // Füge den Gewinner der Result-Warteschlange hinzu
 
+            System.out.println(battleResult);
             // Gib eine Nachricht zurück, dass der Kampf zwischen den beiden gestartet wurde
-            return "Battle started between " + username + " and " + opponentUsername + ". Result will be sent soon.";
+            return battleResult;
         }
     }
 
