@@ -12,6 +12,8 @@ import org.example.server.http.Status;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.sql.SQLException;
+
 public abstract class Controller {
     private final ObjectMapper objectMapper;
 
@@ -24,7 +26,7 @@ public abstract class Controller {
         );
     }
 
-    public abstract Response handle(Request request) throws UserAlreadyExistsException;
+    public abstract Response handle(Request request) throws UserAlreadyExistsException, SQLException, InterruptedException;
 
    /* protected <T> T fromBody(String body, TypeReference<T> type) {
         try {

@@ -56,4 +56,35 @@ public class Card {
     public String toString() {
         return "Card{name='" + name + "', damage=" + damage + ", cardType='" + cardType + "'}";
     }
+    public boolean isSpellCard() {
+        return "SPELL".equalsIgnoreCase(this.cardType);
+    }
+
+    public boolean isMonsterCard() {
+        return "MONSTER".equalsIgnoreCase(this.cardType);
+    }
+    public boolean isGoblin() {
+        return name.toLowerCase().contains("goblin");
+    }
+
+    public boolean isDragon() {
+        return name.toLowerCase().contains("dragon");
+    }
+
+    public boolean isWizard() {
+        return name.toLowerCase().contains("wizard");
+    }
+
+    public boolean isKnight() {
+        return name.toLowerCase().contains("knight");
+    }
+
+    public boolean isKraken() {
+        return name.toLowerCase().contains("kraken");
+    }
+
+    public boolean isFireElf() {
+        return name.toLowerCase().contains("fireelf");
+    }
+
 }

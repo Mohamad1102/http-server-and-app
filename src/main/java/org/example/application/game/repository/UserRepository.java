@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public interface UserRepository {
     User save(User user);
-    ArrayList<User> findAll();
     boolean findByUsername(String username);
     boolean isValidUser(String username, String password);
     void updateCoins(String username, int coins);

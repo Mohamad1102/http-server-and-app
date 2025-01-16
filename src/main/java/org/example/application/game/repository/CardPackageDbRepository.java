@@ -208,4 +208,74 @@ public class CardPackageDbRepository implements CardPackageRepository {
         }
 
     }
+
+    public Card findCardById(UUID cardId) {
+        String query = "SELECT * FROM cards WHERE id = ?";
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setObject(1, cardId); // Parameter setzen
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Neue Card-Instanz erstellen und mit Werten füllen
+                    Card card = new Card();
+                    card.setId(UUID.fromString(rs.getString("id")));
+                    card.setName(rs.getString("name"));
+                    card.setDamage(rs.getDouble("damage"));
+                    card.setCardType(rs.getString("card_type"));
+
+                    return card; // Karte zurückgeben
+                } else {
+                    return null; // Keine Karte gefunden, null zurückgeben
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fehler beim Abrufen der Karte mit ID: " + cardId, e);
+        }
+    }
+
+    public boolean isCardOwnedByUser(UUID cardId, UUID userId) {
+        String query = "SELECT COUNT(*) FROM cards WHERE id = ? AND user_id = ?";
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setObject(1, cardId);
+            stmt.setObject(2, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // True, wenn mindestens ein Eintrag gefunden wurde
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error validating card ownership", e);
+        }
+
+        return false;
+    }
+
+    public int getCardCount(String username) {
+        String query = "SELECT COUNT(*) FROM cards WHERE user_id = (SELECT id FROM users WHERE username = ?)";
+        int cardCount = 0;
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                cardCount = resultSet.getInt(1); // Anzahl der Karten
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return cardCount;
+    }
+
 }

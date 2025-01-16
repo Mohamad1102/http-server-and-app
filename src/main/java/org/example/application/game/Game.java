@@ -14,6 +14,8 @@ import org.example.server.http.Request;
 import org.example.server.http.Response;
 import org.example.server.http.Status;
 
+import java.sql.SQLException;
+
 public class Game implements Application {
 
     private final Router router;
@@ -51,6 +53,10 @@ public class Game implements Application {
             Response response = new Response();
             response.setStatus(Status.CONFLICT);
             return response;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
     private void initializeRoutes() {
@@ -65,8 +71,11 @@ public class Game implements Application {
         DeckRepository deckRepository = new DeckDbRepository(connectionPool);
         DeckService deckService = new DeckService(deckRepository, userRepository, cardRepository);
         TradingDealRepository tradingDealRepo = new TradingDealRepository(connectionPool);
-        CompletedTradeRepository completedTradeRepo = new CompletedTradeRepository(connectionPool);
-        TradeService tradeService = new TradeService(tradingDealRepo, completedTradeRepo, userRepository);
+        TradeService tradeService = new TradeService(tradingDealRepo, userRepository, cardRepository);
+        StatsDbRepository statsDbRepository = new StatsDbRepository(connectionPool);
+        StatsService statsService = new StatsService(statsDbRepository, userRepository);
+        BattleRepository battleRepository = new BattleRepository(connectionPool);
+        BattleService battleService = new BattleService(battleRepository, userRepository, cardRepository);
 
 
 
@@ -80,6 +89,8 @@ public class Game implements Application {
         this.router.addRoute("/deck", new DeckController(deckService));
         this.router.addRoute("/tradings", new TradeController(tradeService));
         this.router.addRoute("/tradings/:tradingdealid", new TradeController(tradeService));
+        this.router.addRoute("/stats", new StatsController(statsService));
+        this.router.addRoute("/battles", new BattleController(battleService));
 
 
 

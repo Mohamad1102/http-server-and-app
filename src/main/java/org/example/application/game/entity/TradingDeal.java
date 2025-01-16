@@ -4,7 +4,7 @@ import java.util.UUID;
 public class TradingDeal {
     private UUID id;
     private UUID cardToTrade;
-    private String tradeType;
+    private String type;
     private double minimumDamage;
     private UUID userId;
 
@@ -16,7 +16,7 @@ public class TradingDeal {
     public TradingDeal(UUID id, UUID cardToTrade, String tradeType, double minimumDamage, UUID userId) {
         this.id = id;
         this.cardToTrade = cardToTrade;
-        this.tradeType = tradeType;
+        this.type = tradeType;
         this.minimumDamage = minimumDamage;
         this.userId = userId;
     }
@@ -38,12 +38,12 @@ public class TradingDeal {
         this.cardToTrade = cardToTrade;
     }
 
-    public String getTradeType() {
-        return tradeType;
+    public String getType() {
+        return type;
     }
 
     public void setTradeType(String tradeType) {
-        this.tradeType = tradeType;
+        this.type = tradeType;
     }
 
     public double getMinimumDamage() {

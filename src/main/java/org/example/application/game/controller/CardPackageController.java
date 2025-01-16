@@ -46,6 +46,15 @@ public class CardPackageController extends Controller {
             ArrayList<Card> cards = super.fromBody(request.getBody(), new TypeReference<ArrayList<Card>>() {
             });
 
+            // Karten überprüfen und initialisieren
+            for (Card card : cards) {
+                if (card.getName() != null && card.getName().toLowerCase().endsWith("spell")) {
+                    card.setCardType("Spell");
+                } else {
+                    card.setCardType("Monster");
+                }
+            }
+
             // Token aus dem Header extrahieren
             String authHeader = request.getHeader("Authorization");
             String token = extractTokenFromAuthHeader(authHeader);

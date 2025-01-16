@@ -1,6 +1,7 @@
 package org.example.application.game.repository;
 
 import org.example.application.game.data.ConnectionPool;
+import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 
 import java.sql.*;
@@ -29,52 +30,6 @@ public class UserDbRepository implements UserRepository{
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public ArrayList<User> findAll() {
-        ArrayList<User> users = new ArrayList<>();
-        String query = "SELECT id, username, password, coins FROM users";  // Abfrage für alle Benutzer
-
-        System.out.println("Vor der Verbindung zur Datenbank");
-
-        try (
-                // Verbindung zur Datenbank herstellen
-                Connection conn = connectionPool.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query);
-                ResultSet rs = stmt.executeQuery()
-        ) {
-            System.out.println("Verbindung zur Datenbank hergestellt");
-
-            // Durch die ResultSet-Ergebnisse iterieren
-            while (rs.next()) {
-                UUID id = rs.getObject("id", UUID.class);          // ID des Benutzers
-                String username = rs.getString("username"); // Username des Benutzers
-                String password = rs.getString("password"); // Passwort des Benutzers
-                int coins = rs.getInt("coins");// Coins des Benutzers
-                String name = rs.getString("name");
-                String bio = rs.getString("bio");
-                String image = rs.getString("image");
-
-
-                System.out.println("Benutzer gefunden: " + username);
-
-                // Benutzer-Objekt erstellen
-                User user = new User(id, username, password, coins, name, bio, image);
-                users.add(user);  // Benutzer zur Liste hinzufügen
-            }
-
-            // Falls keine Benutzer in der Datenbank gefunden wurden
-            if (users.isEmpty()) {
-                System.out.println("Keine Benutzer gefunden in der Datenbank.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Fehler beim Abrufen der Daten: " + e.getMessage());
-        }
-
-        System.out.println("Rückgabe der Benutzer: " + users.size() + " Benutzer gefunden.");
-        return users;  // Alle Benutzer zurückgeben
     }
     public boolean findByUsername(String username) {
         String query = "SELECT COUNT(*) FROM users u WHERE u.username = ?";
@@ -209,7 +164,6 @@ public class UserDbRepository implements UserRepository{
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    // Benutzer-Objekt aus den ResultSet-Daten erstellen
                     UUID id = UUID.fromString(rs.getString("id"));
                     String password = rs.getString("password");
                     int coins = rs.getInt("coins");
@@ -217,14 +171,33 @@ public class UserDbRepository implements UserRepository{
                     String bio = rs.getString("bio");
                     String image = rs.getString("image");
 
-                    return new User(id, username, password, coins, name, bio, image);
+                    User user = new User(id, username, password, coins, name, bio, image);
+
+                    // Abfrage der Karten des Benutzers
+                    String cardQuery = "SELECT c.id, c.name, c.damage, c.card_type FROM cards c "
+                            + "JOIN cards uc ON uc.id = c.id "
+                            + "WHERE uc.user_id = ?";
+                    try (PreparedStatement cardStmt = conn.prepareStatement(cardQuery)) {
+                        cardStmt.setObject(1, id);  // UUID des Benutzers
+                        try (ResultSet cardRs = cardStmt.executeQuery()) {
+                            while (cardRs.next()) {
+                                UUID cardId = UUID.fromString(cardRs.getString("id"));
+                                String cardName = cardRs.getString("name");
+                                double cardDamage = cardRs.getDouble("damage");
+                                String cardType = cardRs.getString("card_type");
+                                Card card = new Card(cardName, cardDamage, cardType);
+                                card.setId(cardId);  // Setze die UUID der Karte
+                                user.addCard(card);  // Füge die Karte zur Liste des Benutzers hinzu
+                            }
+                        }
+                    }
+
+                    return user;  // Gibt den Benutzer mit den Karten zurück
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Kein Benutzer gefunden oder Fehler aufgetreten
+        return null;  // Kein Benutzer gefunden
     }
-
-
 }

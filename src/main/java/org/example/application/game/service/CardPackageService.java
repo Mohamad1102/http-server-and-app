@@ -118,8 +118,6 @@ public class CardPackageService {
 
         System.out.println("NACH USERNAME");
 
-
-
         // 4. Alle Karten des Benutzers zurückgeben
         return mycards;  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.
     }

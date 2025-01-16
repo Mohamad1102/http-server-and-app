@@ -49,7 +49,25 @@ CREATE TABLE IF NOT EXISTS completed_trades (
     trade_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Das Datum, an dem der Handel abgeschlossen wurde
 );
 
+CREATE TABLE IF NOT EXISTS stats (
+    userid UUID REFERENCES users(id) ON DELETE CASCADE,
+    numberOfBattles int,
+    wins int,
+    losses int
+);
+
+
+CREATE TABLE IF NOT EXISTS Elo (
+    userID UUID REFERENCES users(id) ON DELETE CASCADE,
+    EloRating int DEFAULT 100
+    );
+
 TRUNCATE users CASCADE;
 TRUNCATE cards CASCADE;
 TRUNCATE packages CASCADE;
 TRUNCATE decks CASCADE;
+TRUNCATE elo CASCADE;
+TRUNCATE stats CASCADE;
+TRUNCATE trading_deals CASCADE;
+
+

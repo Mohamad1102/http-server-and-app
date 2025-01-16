@@ -13,7 +13,7 @@ public interface CardPackageRepository {
     Optional<Package> findAvailablePackage();
     void assignPackageToUser(UUID packageId, User user);
     ArrayList<Card> findCardsByUsername(UUID userid);
-
-
-
+    Card findCardById(UUID cardId);
+    boolean isCardOwnedByUser(UUID cardId, UUID userId);
+    int getCardCount(String username);
 }
