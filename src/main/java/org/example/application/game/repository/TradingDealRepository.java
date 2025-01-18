@@ -114,27 +114,21 @@ public class TradingDealRepository {
                     }
                 }
 
-                System.out.println("Verbindung zu Treading Deals Erfolgreich");
-
                 // 2. Besitzer der Benutzerkarte ändern
                 UUID userCardNewOwnerId = deal.getUserId(); // Der Benutzer, der die Benutzerkarte erhält
                 updateCardStmt.setObject(1, userCardNewOwnerId);
                 updateCardStmt.setObject(2, userCard.getId()); // ID der Benutzerkarte
                 updateCardStmt.executeUpdate();
 
-                System.out.println("2. Besitzer der Benutzerkarte ändern");
-
                 // 3. Besitzer der Handelskarte ändern
                 updateCardStmt.setObject(1, tradingCardNewOwnerId);
                 updateCardStmt.setObject(2, tradingCardId);
                 updateCardStmt.executeUpdate();
 
-                System.out.println("3. Besitzer der Handelskarte ändern");
                 // 4. Handelsdeal als abgeschlossen markieren
                 markTradeStmt.setObject(1, deal.getId());
                 markTradeStmt.executeUpdate();
 
-                System.out.println("ERFOLGREICH");
                 // Transaktion erfolgreich abschließen
                 connection.commit();
             } catch (SQLException e) {

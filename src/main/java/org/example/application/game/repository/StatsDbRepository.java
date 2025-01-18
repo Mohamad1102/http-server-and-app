@@ -23,12 +23,9 @@ public class StatsDbRepository {
                 PreparedStatement stmt = conn.prepareStatement(query)
         ) {
             stmt.setObject(1, userid);
-            System.out.println("Übergebene Benutzer-ID: " + userid);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                System.out.println("Abfrage: SELECT numberofbattles, wins, losses FROM stats WHERE userid = '" + userid + "'");
                 if (rs.next()) {
-                    System.out.println("IF ABFRAGE");
                     // Statistikdaten aus dem ResultSet extrahieren
                     int battles = rs.getInt("numberofbattles");
                     int wins = rs.getInt("wins");

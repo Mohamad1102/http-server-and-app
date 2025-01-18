@@ -39,11 +39,7 @@ public class StatsController extends Controller {
             return json(Status.UNAUTHORIZED, "{\"error\": \"UNAUTHORIZED User\"}");
         }
 
-        System.out.println("Zur Service");
         UserStats stats = statsService.getUserStats(token);
-
-        // Debugging-Ausgabe
-        System.out.println("Statistik zurückgegeben: " + stats);
 
         // Immer eine Antwort zurückgeben
         return json(Status.OK, stats);

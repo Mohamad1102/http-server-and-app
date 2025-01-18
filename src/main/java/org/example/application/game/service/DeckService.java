@@ -1,12 +1,11 @@
 package org.example.application.game.service;
 
-import org.example.application.game.controller.DeckController;
 import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.BadRequestException;
 import org.example.application.game.repository.CardPackageRepository;
 import org.example.application.game.repository.DeckDbRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -15,10 +14,10 @@ public class DeckService {
 
     private final DeckDbRepository deckRepository;
 
-    private final UserRepository userRepository;
+    private final UserDbRepository userRepository;
     private final CardPackageRepository cardPackageRepository;
 
-    public DeckService(DeckDbRepository deckRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository) {
+    public DeckService(DeckDbRepository deckRepository, UserDbRepository userRepository, CardPackageRepository cardPackageRepository) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
         this.cardPackageRepository = cardPackageRepository;
@@ -62,7 +61,6 @@ public class DeckService {
         // 2. Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
 
-        System.out.println("USERNAME:" + username);
         // 3. Benutzer-Objekt aus der Datenbank laden
         User user = userRepository.findUserByUsername(username);
         if (username == null) {
@@ -70,10 +68,6 @@ public class DeckService {
         }
 
         ArrayList<Card> deckCards = deckRepository.getDeck(user.getId());
-
-        System.out.println("Deck geladen für Benutzer: " + username);
-
-        System.out.println("NACH USERNAME");
 
         // 4. Alle Karten des Benutzers zurückgeben
         return deckCards;  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.
@@ -88,7 +82,6 @@ public class DeckService {
         // 2. Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
 
-        System.out.println("USERNAME:" + username);
         // 3. Benutzer-Objekt aus der Datenbank laden
         User user = userRepository.findUserByUsername(username);
         if (username == null) {
@@ -96,8 +89,6 @@ public class DeckService {
         }
 
         ArrayList<Card> deckCards = deckRepository.getDeckPlain(user.getId());
-
-        System.out.println("NACH USERNAME");
 
         // 4. Alle Karten des Benutzers zurückgeben
         return deckCards;  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.

@@ -98,7 +98,6 @@ public class UserController extends Controller{
 
         // Benutzerobjekt aus dem Request-Body extrahieren
         User updatedUser = fromBody(request.getBody(), new TypeReference<User>() {});
-        System.out.println("Update Request Body: " + updatedUser);
 
         // Benutzer im Service aktualisieren
         try {

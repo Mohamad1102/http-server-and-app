@@ -1,6 +1,5 @@
 package org.example.application.game.service;
 
-import org.example.application.game.entity.UserElo;
 import org.example.application.game.repository.EloDbRepository;
 
 import java.util.List;

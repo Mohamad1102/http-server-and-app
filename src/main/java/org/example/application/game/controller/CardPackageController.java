@@ -24,11 +24,9 @@ public class CardPackageController extends Controller {
     public Response handle(Request request) {
         if (request.getMethod().equals(Method.POST)) {
             if (request.getPath().equals("/packages")) {
-                System.out.println("!!CREATE PACKAGES!!");
                 // Anfrage für das Erstellen eines neuen Pakets
                 return createPackage(request);
             } else if (request.getPath().equals("/transactions/packages")) {
-                System.out.println("!!BUY PACKAGES!!");
                 // Anfrage für den Kauf eines Pakets
                 return buyPackage(request);
             }
@@ -37,7 +35,14 @@ public class CardPackageController extends Controller {
                 return getCards(request);
             }
         }
-        return json(Status.NOT_FOUND, "{\"error\": \"Method or path not allowed\"}"); // TODO METHOD NOT FOUND
+        return json(Status.NOT_FOUND, "{\"error\": \"Method or path not allowed\"}");
+    }
+
+    private String extractTokenFromAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Authorization header is missing or invalid");
+        }
+        return authHeader.substring(7);
     }
 
     private Response createPackage(Request request) throws CardPackageCreationException {
@@ -58,8 +63,6 @@ public class CardPackageController extends Controller {
             // Token aus dem Header extrahieren
             String authHeader = request.getHeader("Authorization");
             String token = extractTokenFromAuthHeader(authHeader);
-
-            System.out.println("Eingeloggte User is " + token);
 
             // Paket erstellen
             UUID packageId = cardPackageService.createPackage(cards, token);
@@ -90,13 +93,6 @@ public class CardPackageController extends Controller {
         }
     }
 
-    private String extractTokenFromAuthHeader(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Authorization header is missing or invalid");
-        }
-        return authHeader.substring(7);
-    }
-
     private Response getCards(Request request) {
         try {
             // Token aus dem Header extrahieren
@@ -107,7 +103,6 @@ public class CardPackageController extends Controller {
 
             // Extrahiere den Token ohne "Bearer "
             String token = authHeader.substring(7);
-            System.out.println("The USERNAME: " + token);
 
             // Benutzerkarten über den Service abrufen
             ArrayList<Card> userCards = cardPackageService.getUserCards(token);

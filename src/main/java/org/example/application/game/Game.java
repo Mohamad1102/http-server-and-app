@@ -63,7 +63,7 @@ public class Game implements Application {
 
         ConnectionPool connectionPool = new ConnectionPool();
 
-        UserRepository userRepository = new UserDbRepository(connectionPool);
+        UserDbRepository userRepository = new UserDbRepository(connectionPool);
         TokenService tokenService = new TokenService();
         UserService userService = new UserService(userRepository, tokenService);
         CardPackageRepository cardRepository = new CardPackageDbRepository(connectionPool); // Verwende die konkrete Implementierung

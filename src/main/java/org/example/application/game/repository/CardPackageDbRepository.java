@@ -7,7 +7,6 @@ import org.example.application.game.entity.User;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,78 +24,44 @@ public class CardPackageDbRepository implements CardPackageRepository {
             throw new IllegalArgumentException("Nur der Admin kann ein Paket erstellen.");
         }
 
-        System.out.println("ES SIND 5 Karten");
         String insertPackageSQL = "INSERT INTO packages (availability) VALUES (TRUE) RETURNING id";
         String insertCardSQL = "INSERT INTO cards (id, name, damage, card_type, package_id) VALUES (?, ?, ?, ?, ?)";
-        System.out.println("VERBINDUNG erstellen!!");
         try (
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement packageStatement = connection.prepareStatement(insertPackageSQL);
                 PreparedStatement cardStatement = connection.prepareStatement(insertCardSQL)
         ) {
             if (connection == null) {
-                System.out.println("Verbindung zur Datenbank konnte nicht hergestellt werden.");
                 return null; // Frühzeitig die Methode beenden
-            } else {
-                System.out.println("Verbindung zur Datenbank erfolgreich.");
             }
             connection.setAutoCommit(false); // Transaktion starten
 
-            System.out.println("PAKET UND ID erstellen!!");
             // Paket erstellen und ID erhalten
             ResultSet packageResultSet = packageStatement.executeQuery();
             if (!packageResultSet.next()) {
-                System.out.println("VOR IF!!");
+
                 throw new SQLException("Fehler beim Erstellen des Pakets.");
             }
-            System.out.println("NACH IF !!");
             UUID packageId = packageResultSet.getObject(1, UUID.class);
-
-            System.out.println("NACH IF 1!");
-            System.out.println(cards.size());
-
-            System.out.println("Cards: " + cards);
-
-            if (!(cards instanceof List)) {
-                System.out.println("'cards' ist kein List-Typ.");
-            } else if (!cards.isEmpty() && !(cards.get(0) instanceof Card)) {
-                System.out.println("Die Elemente in 'cards' sind nicht vom Typ Card.");
-            }
-
-            for (int i = 0; i < cards.size(); i++) {
-                Card card = cards.get(i);
-                if (card == null) {
-                    System.out.println("Index " + i + ": card ist null!");
-                } else {
-                    System.out.println("Index " + i + ": Karte Name=" + card.getName() +card.getDamage() + card.getCardType());
-                }
-            }
 
             // Karten in die Datenbank einfügen und mit dem Paket verknüpfen
             for (Card card : cards)  {
                 cardStatement.setObject(1, card.getId());
-                System.out.println("FOR LOOP!!");
                 cardStatement.setString(2, card.getName());
-                System.out.println("LOOP 2!");
                 cardStatement.setDouble(3, card.getDamage());
-                System.out.println("LOOP 3!");
                 cardStatement.setString(4, card.getCardType());
                 cardStatement.setObject(5, packageId);  // Verknüpft die Karte mit dem Paket
-                System.out.println("LOOP 5!");
                 cardStatement.addBatch(); // Karten zu einer Batch-Verarbeitung hinzufügen
             }
 
-            System.out.println("NACH FOR LOOP!!");
 
             cardStatement.executeBatch(); // Alle Karten auf einmal einfügen
 
             connection.commit(); // Transaktion abschließen
-            System.out.println("PACKET WURDE ERSTELLT");
             return packageId; // Paket-ID zurückgeben
 
 
         } catch (SQLException e) {
-            System.out.println("ERROR");
             e.printStackTrace();
             throw new RuntimeException("Fehler beim Speichern des Pakets und der Karten.", e);
         }
@@ -147,8 +112,6 @@ public class CardPackageDbRepository implements CardPackageRepository {
         String sqlUpdatePackage = "UPDATE packages SET availability = FALSE WHERE id = ?";
         String sqlUpdateCards = "UPDATE cards SET user_id = ? WHERE package_id = ?";
 
-        System.out.println("KAUF PACKAGE SQL STATMENT");
-
         try (Connection connection = connectionPool.getConnection();
              PreparedStatement updatePackageStmt = connection.prepareStatement(sqlUpdatePackage);
              PreparedStatement updateCardsStmt = connection.prepareStatement(sqlUpdateCards)) {
@@ -166,7 +129,6 @@ public class CardPackageDbRepository implements CardPackageRepository {
 
             connection.commit();  // Transaktion abschließen
 
-            System.out.println("Paket und Karten erfolgreich dem Benutzer zugewiesen.");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Fehler beim Zuweisen des Pakets an den Benutzer", e);

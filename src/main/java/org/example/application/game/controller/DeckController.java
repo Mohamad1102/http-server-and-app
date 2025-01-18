@@ -22,7 +22,6 @@ public class DeckController extends Controller {
     public Response handle(Request request) {
         if (request.getMethod().equals(Method.PUT)) {
             if (request.getPath().equals("/deck")) {
-                System.out.println("!!CREATE DECK!!");
                 // Anfrage für das Erstellen eines neuen Pakets
                 return createDeck(request);
             }
@@ -53,8 +52,6 @@ public class DeckController extends Controller {
             String authHeader = request.getHeader("Authorization");
             String token = extractTokenFromAuthHeader(authHeader);
 
-            System.out.println("Eingeloggte User is " + token);
-
             // Paket erstellen
             UUID deckID = deckService.createDeck(cardsID, token);
 
@@ -76,7 +73,6 @@ public class DeckController extends Controller {
 
             // Extrahiere den Token ohne "Bearer "
             String token = authHeader.substring(7);
-            System.out.println("The USERNAME: " + token);
 
             // Benutzerkarten über den Service abrufen
             ArrayList<Card> userDeck = deckService.getDeck(token);
@@ -106,7 +102,6 @@ public class DeckController extends Controller {
 
             // Extrahiere den Token ohne "Bearer "
             String token = authHeader.substring(7);
-            System.out.println("The USERNAME: " + token);
 
             // Benutzerkarten über den Service abrufen
             ArrayList<Card> userDeck = deckService.getDeckPlain(token);

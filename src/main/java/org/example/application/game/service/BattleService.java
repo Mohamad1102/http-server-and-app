@@ -10,13 +10,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class BattleService {
     private final BattleRepository battleRepository;
-    private final UserRepository userRepository;
+    private final UserDbRepository userRepository;
     private final DeckDbRepository deckRepository;
     private final BlockingDeque<String> battleRequestQueue;
     private final BlockingDeque<String> battleResultQueue;
 
     // Konstruktor
-    public BattleService(BattleRepository battleRepository, UserRepository userRepository, DeckDbRepository deckRepository) {
+    public BattleService(BattleRepository battleRepository, UserDbRepository userRepository, DeckDbRepository deckRepository) {
         this.battleRepository = battleRepository;
         this.userRepository = userRepository;
         this.deckRepository = deckRepository;
@@ -32,37 +32,32 @@ public class BattleService {
             return "User not found!";
         }
 
-        String opponentUsername =  null;
+        String opponentUsername = null;
         synchronized (battleRequestQueue) {
             opponentUsername = battleRequestQueue.poll();
-            if(opponentUsername == null) {
+            if (opponentUsername == null) {
                 battleRequestQueue.add(username);
             }
         }
 
         // Wenn die Warteschlange leer ist, füge den Benutzer hinzu und warte auf einen Gegner
         if (opponentUsername == null) {
-            System.out.println("IF ABFREAGE");
             String result = battleResultQueue.take();
             return result;
         } else {
             // Wenn bereits ein anderer Benutzer in der Warteschlange ist, starte den Kampf
             User opponent = userRepository.findUserByUsername(opponentUsername);
 
-            System.out.println("ELSE IF 1");
             // Decks der beiden Benutzer abrufen
             List<Card> userDeck = battleRepository.getDeckForUser(user.getId());
             List<Card> opponentDeck = battleRepository.getDeckForUser(opponent.getId());
 
-            System.out.println("ELSE IF 2");
             // Kampflogik ausführen
             String battleResult = startCombat(user, userDeck, opponent, opponentDeck);
 
-            System.out.println("ELSE IF 3");
             // Speichere das Ergebnis des Kampfes und benachrichtige beide Benutzer
             battleResultQueue.add(battleResult);  // Füge den Gewinner der Result-Warteschlange hinzu
 
-            System.out.println(battleResult);
             // Gib eine Nachricht zurück, dass der Kampf zwischen den beiden gestartet wurde
             return battleResult;
         }
@@ -210,9 +205,5 @@ public class BattleService {
         battleRepository.updateElo(winner.getId(), newWinnerElo);
         battleRepository.updateElo(loser.getId(), newLoserElo);
     }
-
-
-
-
 }
 

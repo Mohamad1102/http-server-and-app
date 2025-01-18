@@ -40,7 +40,6 @@ public class DeckDbRepository{
                 return null;
             }
 
-            System.out.println("Verbindung zur Datenbank erfolgreich.");
             connection.setAutoCommit(false); // Transaktion starten
 
             // Generiere eine neue Deck-ID

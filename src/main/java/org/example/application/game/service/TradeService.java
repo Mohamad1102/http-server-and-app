@@ -6,7 +6,7 @@ import org.example.application.game.entity.User;
 import org.example.application.game.exception.SQLException;
 import org.example.application.game.repository.CardPackageRepository;
 import org.example.application.game.repository.TradingDealRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,11 +14,11 @@ import java.util.UUID;
 public class TradeService {
 
     private TradingDealRepository tradingDealRepo;
-    private UserRepository userRepository;
+    private UserDbRepository userRepository;
     private CardPackageRepository cardPackageRepo;
 
     // Konstruktor-Injektion der Repositories
-    public TradeService(TradingDealRepository tradingDealRepo, UserRepository userRepository, CardPackageRepository cardPackageRepo) {
+    public TradeService(TradingDealRepository tradingDealRepo, UserDbRepository userRepository, CardPackageRepository cardPackageRepo) {
         this.tradingDealRepo = tradingDealRepo;
         this.userRepository = userRepository;
         this.cardPackageRepo = cardPackageRepo;
@@ -34,8 +34,6 @@ public class TradeService {
     public void createTradingDeal(TradingDeal tradingDeal, String token) throws SQLException, java.sql.SQLException {
         // Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
-
-        System.out.println("THE USERNAME IS: " + username);
 
         // Benutzer-ID anhand des Benutzernamens abrufen
         UUID userId = userRepository.getUserIdByUsername(username);
@@ -108,8 +106,6 @@ public class TradeService {
             if (!deleted) {
                 throw new IllegalArgumentException("Trading deal not found or could not be deleted");
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error while deleting trading deal", e);
         } catch (java.sql.SQLException e) {
             throw new RuntimeException(e);
         }

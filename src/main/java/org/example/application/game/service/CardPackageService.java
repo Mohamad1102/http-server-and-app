@@ -4,7 +4,7 @@ import org.example.application.game.entity.Card;
 import org.example.application.game.entity.Package;
 import org.example.application.game.entity.User;
 import org.example.application.game.repository.CardPackageRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -13,10 +13,10 @@ import java.util.UUID;
 public class CardPackageService {
 
     private final CardPackageRepository cardPackageRepository;
-    private final UserRepository userRepository;
+    private final UserDbRepository userRepository;
 
     // Konstruktor-Injektion
-    public CardPackageService(CardPackageRepository cardPackageRepository, UserRepository userRepository) {
+    public CardPackageService(CardPackageRepository cardPackageRepository, UserDbRepository userRepository) {
         this.cardPackageRepository = cardPackageRepository;
         this.userRepository = userRepository;
     }
@@ -42,11 +42,10 @@ public class CardPackageService {
             throw new IllegalArgumentException("Nur der Admin kann ein Paket erstellen.");
         }
 
-        if (cards.size() != 5) {  //TODO IN SERVICE
+        if (cards.size() != 5) {
             throw new IllegalArgumentException("Ein Paket muss genau 5 Karten enthalten.");
         }
 
-        System.out.println("!!ZUR REPOSITORY!!");
         // 3. Paket erstellen
         UUID id = cardPackageRepository.createPackageForAdmin(cards, adminUser);
         return id;
@@ -107,7 +106,6 @@ public class CardPackageService {
         // 2. Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
 
-        System.out.println("USERNAME:" + username);
         // 3. Benutzer-Objekt aus der Datenbank laden
         User user = userRepository.findUserByUsername(username);
         if (username == null) {
@@ -115,10 +113,6 @@ public class CardPackageService {
         }
 
         ArrayList<Card> mycards = cardPackageRepository.findCardsByUsername(user.getId());
-
-        System.out.println("NACH USERNAME");
-
-
 
         // 4. Alle Karten des Benutzers zurückgeben
         return mycards;  // Hier nehmen wir an, dass User eine Methode getCards hat, die alle zugeordneten Karten liefert.

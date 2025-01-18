@@ -1,5 +1,7 @@
 package org.example.application.game.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +15,7 @@ public class User {
 
     private int coins;
 
+    @JsonIgnore
     private ArrayList<Card> cards;  // Liste der Karten des Benutzers
 
     private String name;

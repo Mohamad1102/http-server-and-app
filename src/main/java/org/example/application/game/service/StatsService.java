@@ -4,14 +4,13 @@ import org.example.application.game.entity.UserStats;
 import org.example.application.game.exception.SQLException;
 import org.example.application.game.repository.StatsDbRepository;
 import org.example.application.game.repository.UserDbRepository;
-import org.example.application.game.repository.UserRepository;
 
 import java.util.UUID;
 
 public class StatsService {
     private final StatsDbRepository statsDbRepository;
-    private final UserRepository userRepository;
-    public StatsService(StatsDbRepository statsDbRepository, UserRepository userRepository) {
+    private final UserDbRepository userRepository;
+    public StatsService(StatsDbRepository statsDbRepository, UserDbRepository userRepository) {
         this.statsDbRepository = statsDbRepository;
         this.userRepository = userRepository;
     }
@@ -31,7 +30,6 @@ public class StatsService {
             throw new NullPointerException("User not found");
         }
 
-        System.out.println("ZUR REPOS");
         return statsDbRepository.getUserStats(userId);
     }
 

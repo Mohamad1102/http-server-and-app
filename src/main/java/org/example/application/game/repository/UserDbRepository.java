@@ -5,17 +5,16 @@ import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.UUID;
 
-public class UserDbRepository implements UserRepository{
+public class UserDbRepository {
     private final ConnectionPool connectionPool;
     private final static String NEW_USER
             = "INSERT INTO users VALUES (?, ?, ?)";
     public UserDbRepository(ConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
     }
-    @Override
+
     public User save(User user) {
         try (
                 Connection connection = connectionPool.getConnection();
@@ -81,24 +80,17 @@ public class UserDbRepository implements UserRepository{
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        System.out.println("Updating coins for user: " + username + " to " + coins);
     }
     public User findUserByUsername(String username) {
         String query = "SELECT id, username, password, coins, name, bio, image FROM users WHERE username = ?";
-        System.out.println("findUserByUsername STATMENT");
         try (Connection connection = connectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, username);
-            System.out.println("TRY 1");
             try (ResultSet rs = stmt.executeQuery()) {
-                System.out.println("TRY 2");
                 if (rs.next()) {
-                    System.out.println("2.1");
-                    UUID id = UUID.fromString(rs.getString("id"));
-                    System.out.println("TRY 2.2");
+                    UUID id =  rs.getObject("id", UUID.class);
                     String password = rs.getString("password");
                     int coins = rs.getInt("coins");
-                    System.out.println("TRY 2.3");
                     String name = rs.getString("name");
                     String bio = rs.getString("bio");
                     String image = rs.getString("image");
@@ -106,7 +98,6 @@ public class UserDbRepository implements UserRepository{
                     User user = new User(id, username, password, coins, name, bio, image); // Erstelle User mit aktuellen Coins
                     return user;
                 }
-                System.out.println("Verbindung Erfolgreich für findUserByUsername");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -145,10 +136,8 @@ public class UserDbRepository implements UserRepository{
             // Ausführung des Updates
             int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("User successfully updated: " + user.getUsername());
                 return user; // Aktualisierter Benutzer zurückgeben
             } else {
-                System.out.println("No user found with ID: " + user.getId());
                 return null; // Kein Benutzer aktualisiert
             }
         } catch (SQLException e) {
@@ -166,7 +155,7 @@ public class UserDbRepository implements UserRepository{
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    UUID id = UUID.fromString(rs.getString("id"));
+                    UUID id = rs.getObject("id", UUID.class);
                     String password = rs.getString("password");
                     int coins = rs.getInt("coins");
                     String name = rs.getString("name");
@@ -183,7 +172,7 @@ public class UserDbRepository implements UserRepository{
                         cardStmt.setObject(1, id);  // UUID des Benutzers
                         try (ResultSet cardRs = cardStmt.executeQuery()) {
                             while (cardRs.next()) {
-                                UUID cardId = UUID.fromString(cardRs.getString("id"));
+                                UUID cardId = cardRs.getObject("id", UUID.class);
                                 String cardName = cardRs.getString("name");
                                 double cardDamage = cardRs.getDouble("damage");
                                 String cardType = cardRs.getString("card_type");

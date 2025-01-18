@@ -1,7 +1,6 @@
 package org.example.application.game.repository;
 
 import org.example.application.game.entity.Card;
-import org.example.application.game.entity.User;
 import org.example.application.game.data.ConnectionPool;
 import org.example.application.game.exception.BadRequestException;
 
@@ -9,7 +8,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class BattleRepository {
     private final ConnectionPool connectionPool;

@@ -20,7 +20,6 @@ public class EloController extends Controller{
     public Response handle(Request request) throws UserAlreadyExistsException {
 
         if (request.getMethod().equals(Method.GET)) {
-            System.out.println("GETSCOREBORD");
             return getScoreBboard(request);
         }
         return null;
@@ -28,7 +27,6 @@ public class EloController extends Controller{
     private Response getScoreBboard(Request request)
     {
         List<Map<String, Object>> scorebord = eloService.getScoreBord();
-        System.out.println("LIST ERSTELLT");
         return json(Status.OK, scorebord);
     }
 }

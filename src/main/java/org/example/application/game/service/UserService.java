@@ -1,28 +1,25 @@
 package org.example.application.game.service;
 
 import org.example.application.game.entity.User;
-import org.example.application.game.exception.EntityNotFoundException;
-import org.example.application.game.exception.SQLException;
 import org.example.application.game.exception.UserAlreadyExistsException;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 
 import java.util.*;
 
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserDbRepository userRepository;
     private final TokenService tokenService;
     private final Map<String, String> tokens = new HashMap<>();
 
 
 
-    public UserService(UserRepository userRepository, TokenService tokenService) {
+    public UserService(UserDbRepository userRepository, TokenService tokenService) {
         this.userRepository = userRepository;
         this.tokenService = tokenService;
     }
     public User create(User user) throws UserAlreadyExistsException{
         // Prüfen, ob der Benutzer existiert
         if (userRepository.findByUsername(user.getUsername())) {
-            System.out.println("user exists");
             throw new UserAlreadyExistsException("User '" + user.getUsername() + "' already exists.");
         }
         // Benutzer speichern
