@@ -4,28 +4,22 @@ import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 import org.example.application.game.repository.*;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class BattleService {
     private final BattleRepository battleRepository;
     private final UserRepository userRepository;
-    private final CardPackageRepository cardPackageRepository;
-    private final StatsDbRepository statsDbRepository;
-    private final EloDbRepository eloDbRepository;
+    private final DeckDbRepository deckRepository;
     private final BlockingDeque<String> battleRequestQueue;
     private final BlockingDeque<String> battleResultQueue;
 
     // Konstruktor
-    public BattleService(BattleRepository battleRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository, StatsDbRepository statsDbRepository, EloDbRepository eloDbRepository) {
+    public BattleService(BattleRepository battleRepository, UserRepository userRepository, DeckDbRepository deckRepository) {
         this.battleRepository = battleRepository;
         this.userRepository = userRepository;
-        this.cardPackageRepository = cardPackageRepository;
-        this.statsDbRepository = statsDbRepository;
-        this.eloDbRepository = eloDbRepository;
+        this.deckRepository = deckRepository;
         this.battleRequestQueue = new LinkedBlockingDeque<>();
         this.battleResultQueue = new LinkedBlockingDeque<>();
     }
@@ -75,7 +69,7 @@ public class BattleService {
     }
 
     // Simulierte Kampf-Logik und Ergebnis
-    private String startCombat(User player1, List<Card> deck1, User player2, List<Card> deck2) {
+    public String startCombat(User player1, List<Card> deck1, User player2, List<Card> deck2) {
         StringBuilder battleLog = new StringBuilder();
         battleLog.append("Battle between ").append(player1.getUsername()).append(" and ").append(player2.getUsername()).append("\n");
 
@@ -112,12 +106,23 @@ public class BattleService {
 
         // Ergebnis des Battles
         String result;
+        List<UUID> loserDeckCardIds = new ArrayList<>();
+
         if (deck1.isEmpty() && deck2.isEmpty()) {
             result = "Draw! Both players ran out of cards.";
         } else if (deck1.isEmpty()) {
             result = player2.getUsername() + " wins the battle!";
+            loserDeckCardIds = deckRepository.getDeckCardIds(player1.getId());// Karten des Verlierers abrufen
+
+            deckRepository.updateCardUserId(player2.getId(), loserDeckCardIds);  // Karten übertragen
+            battleRepository.resetDeckCardsForLoser(player1.getId());  // Setze Karten des Verlierers auf NULL
+            updateStatsAndElo(player2, player1, false); // player2 ist Gewinner, player1 der Verlierer
         } else if (deck2.isEmpty()) {
             result = player1.getUsername() + " wins the battle!";
+            loserDeckCardIds = deckRepository.getDeckCardIds(player2.getId());  // Karten des Verlierers abrufen
+            deckRepository.updateCardUserId(player1.getId(), loserDeckCardIds);  // Karten übertragen
+            battleRepository.resetDeckCardsForLoser(player2.getId());  // Setze Karten des Verlierers auf NULL
+            updateStatsAndElo(player1, player2, true); // player1 ist Gewinner, player2 der Verlierer
         } else {
             result = "Draw! The battle timed out.";
         }
@@ -126,7 +131,7 @@ public class BattleService {
         return battleLog.toString();
     }
 
-    private double calculateDamage(Card attacker, Card defender) {
+    public double calculateDamage(Card attacker, Card defender) {
         // Goblins haben Angst vor Drachen
         if (attacker.isGoblin() && defender.isDragon()) {
             return 0; // Goblins greifen Drachen nicht an
@@ -182,5 +187,32 @@ public class BattleService {
 
         return baseDamage; // Keine Elementarinteraktion
     }
+
+    private void updateStatsAndElo(User winner, User loser, boolean player1Won) {
+        // Update der Stats für den Gewinner und den Verlierer
+        battleRepository.updateStats(winner.getId(), true);  // Gewinner stat update
+        battleRepository.updateStats(loser.getId(), false);   // Verlierer stat update
+
+        // Hole die aktuellen Elo-Werte des Gewinners und des Verlierers
+        int winnerElo = battleRepository.getEloByUserId(winner.getId());
+        int loserElo = battleRepository.getEloByUserId(loser.getId());
+
+        // Berechne neue Elo-Werte
+        int newWinnerElo = winnerElo + 3;  // Gewinner Elo um 3 erhöhen
+        int newLoserElo = loserElo - 5;    // Verlierer Elo um 5 verringern
+
+        // Sicherstellen, dass der Elo-Wert des Verlierers nicht negativ wird
+        if (newLoserElo < 0) {
+            newLoserElo = 0;
+        }
+
+        // Speichern der neuen Elo-Werte in der Datenbank
+        battleRepository.updateElo(winner.getId(), newWinnerElo);
+        battleRepository.updateElo(loser.getId(), newLoserElo);
+    }
+
+
+
+
 }
 

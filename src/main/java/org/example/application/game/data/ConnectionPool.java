@@ -9,7 +9,11 @@ public class ConnectionPool {
     private final static String USERNAME = "swen1";
     private final static String PASSWORD = "swen1";
 
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    public Connection getConnection() throws RuntimeException {
+        try {
+            return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

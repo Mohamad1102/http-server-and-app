@@ -1,10 +1,11 @@
 package org.example.application.game.service;
 
+import org.example.application.game.controller.DeckController;
 import org.example.application.game.entity.Card;
 import org.example.application.game.entity.User;
 import org.example.application.game.exception.BadRequestException;
 import org.example.application.game.repository.CardPackageRepository;
-import org.example.application.game.repository.DeckRepository;
+import org.example.application.game.repository.DeckDbRepository;
 import org.example.application.game.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -12,12 +13,12 @@ import java.util.UUID;
 
 public class DeckService {
 
-    private final DeckRepository deckRepository;
+    private final DeckDbRepository deckRepository;
 
     private final UserRepository userRepository;
     private final CardPackageRepository cardPackageRepository;
 
-    public DeckService(DeckRepository deckRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository) {
+    public DeckService(DeckDbRepository deckRepository, UserRepository userRepository, CardPackageRepository cardPackageRepository) {
         this.deckRepository = deckRepository;
         this.userRepository = userRepository;
         this.cardPackageRepository = cardPackageRepository;

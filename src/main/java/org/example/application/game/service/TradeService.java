@@ -36,6 +36,7 @@ public class TradeService {
         String username = extractUsernameFromToken(token);
 
         System.out.println("THE USERNAME IS: " + username);
+
         // Benutzer-ID anhand des Benutzernamens abrufen
         UUID userId = userRepository.getUserIdByUsername(username);
 
@@ -43,16 +44,21 @@ public class TradeService {
         tradingDeal.setUserId(userId);
 
         // Validierung des Handelsdeals
-        validateTradingDeal(tradingDeal);
+        validateTradingDeal(tradingDeal, userId);
 
         // Handelsdeal speichern
         tradingDealRepo.createTradingDeal(tradingDeal);
     }
 
-    private void validateTradingDeal(TradingDeal tradingDeal) {
+    private void validateTradingDeal(TradingDeal tradingDeal, UUID userId) throws SQLException {
         if (tradingDeal.getId() == null || tradingDeal.getCardToTrade() == null ||
                 tradingDeal.getType() == null || tradingDeal.getMinimumDamage() <= 0) {
             throw new IllegalArgumentException("Invalid trading deal data");
+        }
+
+        // Prüfen, ob die Karte im Deck des Benutzers enthalten ist
+        if (tradingDealRepo.isCardInDeck(userId, tradingDeal.getCardToTrade())) {
+            throw new IllegalArgumentException("The card to trade is currently in the user's deck and cannot be traded.");
         }
     }
 
@@ -64,8 +70,6 @@ public class TradeService {
 
         // 2. Benutzername aus dem Token extrahieren
         String username = extractUsernameFromToken(token);
-
-        System.out.println("USERNAME: " + username);
 
         // 3. Benutzer-Objekt aus der Datenbank laden
         User user = userRepository.findUserByUsername(username);
@@ -126,14 +130,12 @@ public class TradeService {
             throw new IllegalArgumentException("User not found");
         }
 
-        System.out.println("4");
         // 4. Trading-Deal validieren
         TradingDeal deal = tradingDealRepo.getTradingDealById(tradingDealId);
         if (deal == null) {
             throw new IllegalArgumentException("Trading deal not found");
         }
 
-        System.out.println("5");
         // 5. Benutzerkarte validieren
         boolean userOwnsCard = cardPackageRepo.isCardOwnedByUser(userCardId, user.getId());
         if (!userOwnsCard) {
@@ -143,7 +145,6 @@ public class TradeService {
         // Karte des Benutzers aus der Datenbank abrufen
         Card userCard = cardPackageRepo.findCardById(userCardId);
 
-        System.out.println("6");
         // 6. Mindestschaden und Kartentyp prüfen
         if (userCard.getDamage() < deal.getMinimumDamage()) {
             throw new IllegalArgumentException("User card damage is less than the minimum required damage for the trade.");
@@ -153,24 +154,18 @@ public class TradeService {
             throw new IllegalArgumentException("User card type does not match the required card type for the trade.");
         }
 
-        System.out.println("7");
         // 7. Karte aus dem Trading-Deal prüfen
         boolean dealCardExists = cardPackageRepo.isCardOwnedByUser(deal.getCardToTrade(), deal.getUserId());
         if (!dealCardExists) {
             throw new IllegalArgumentException("Card in trading deal not found or does not belong to the trading user");
         }
 
-        System.out.println("8");
         // 8. Überprüfen, ob beide Karten unterschiedliche Besitzer haben
         if (deal.getUserId().equals(user.getId())) {
             throw new IllegalArgumentException("Cannot trade: Both cards belong to the same user");
         }
 
-        System.out.println("9");
         // 9. Karten tauschen
         tradingDealRepo.executeTrade(deal, userCard);
     }
-
-
-
 }

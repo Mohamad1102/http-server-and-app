@@ -114,7 +114,7 @@ public class UserDbRepository implements UserRepository{
         return null;
     }
 
-    public UUID getUserIdByUsername(String username) throws SQLException {
+    public UUID getUserIdByUsername(String username) throws RuntimeException {
         String query = "SELECT id FROM users WHERE username = ?";
         try (Connection connection = connectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -126,6 +126,8 @@ public class UserDbRepository implements UserRepository{
                     throw new IllegalArgumentException("User not found for username: " + username);
                 }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
     public User updateUser(User user) {

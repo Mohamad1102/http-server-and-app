@@ -61,7 +61,7 @@ public class Card {
     }
     @JsonIgnore
     public boolean isSpellCard() {
-        return "SPELL".equalsIgnoreCase(this.cardType);
+        return this.getCardType().equals("SPELL");
     }
     @JsonIgnore
     public boolean isMonsterCard() {

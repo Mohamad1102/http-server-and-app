@@ -68,7 +68,7 @@ public class Game implements Application {
         UserService userService = new UserService(userRepository, tokenService);
         CardPackageRepository cardRepository = new CardPackageDbRepository(connectionPool); // Verwende die konkrete Implementierung
         CardPackageService cardPackageService = new CardPackageService(cardRepository, userRepository);
-        DeckRepository deckRepository = new DeckDbRepository(connectionPool);
+        DeckDbRepository deckRepository = new DeckDbRepository(connectionPool);
         DeckService deckService = new DeckService(deckRepository, userRepository, cardRepository);
         TradingDealRepository tradingDealRepo = new TradingDealRepository(connectionPool);
         TradeService tradeService = new TradeService(tradingDealRepo, userRepository, cardRepository);
@@ -76,14 +76,13 @@ public class Game implements Application {
         StatsService statsService = new StatsService(statsDbRepository, userRepository);
         BattleRepository battleRepository = new BattleRepository(connectionPool);
         EloDbRepository eloDbRepository = new EloDbRepository(connectionPool);
-        BattleService battleService = new BattleService(battleRepository, userRepository, cardRepository, statsDbRepository, eloDbRepository);
+        BattleService battleService = new BattleService(battleRepository, userRepository, deckRepository);
+        EloService eloService = new EloService(eloDbRepository);
 
 
 
         this.router.addRoute("/users", new UserController(userService));
         this.router.addRoute("/sessions", new SessionController(userService));
-        this.router.addRoute("/wait", new WaitController());
-        this.router.addRoute("/health", new HealthController());
         this.router.addRoute("/packages", new CardPackageController(cardPackageService)); // Stelle sicher, dass die Controller-Instanziierung korrekt ist
         this.router.addRoute("/transactions/packages", new CardPackageController(cardPackageService)); // Route für Paket kaufen
         this.router.addRoute("/cards", new CardPackageController(cardPackageService));
@@ -92,6 +91,7 @@ public class Game implements Application {
         this.router.addRoute("/tradings/:tradingdealid", new TradeController(tradeService));
         this.router.addRoute("/stats", new StatsController(statsService));
         this.router.addRoute("/battles", new BattleController(battleService));
+        this.router.addRoute("/scoreboard", new EloController(eloService));
 
 
 

@@ -143,4 +143,29 @@ public class TradingDealRepository {
             }
         }
     }
+
+    public boolean isCardInDeck(UUID userId, UUID cardId) {
+        String sqlCheckCardInDeck = "SELECT 1 FROM decks " +
+                "WHERE user_id = ? AND (card1 = ? OR card2 = ? OR card3 = ? OR card4 = ?)";
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sqlCheckCardInDeck)) {
+
+            // Setze die Parameter der Abfrage
+            stmt.setObject(1, userId);
+            stmt.setObject(2, cardId);
+            stmt.setObject(3, cardId);
+            stmt.setObject(4, cardId);
+            stmt.setObject(5, cardId);
+
+            // Führe die Abfrage aus
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // Wenn ein Eintrag gefunden wird, ist die Karte im Deck enthalten
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fehler bei der Prüfung, ob die Karte im Deck enthalten ist.", e);
+        }
+    }
+
 }

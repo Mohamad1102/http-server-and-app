@@ -31,8 +31,8 @@ class UserDbRepositoryTest {
         // Mocking connection pool to return mocked connection
         try {
             when(connectionPoolMock.getConnection()).thenReturn(connectionMock);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 

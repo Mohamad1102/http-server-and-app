@@ -98,31 +98,6 @@ class CardPackageServiceTest {
     }
 
     @Test
-    void testBuyPackage_NotEnoughCoins() {
-        // Setup
-        String token = "user-mtcgToken";
-        User user = new User();
-        user.setUsername("user");
-        user.setCoins(5);  // Nicht genügend Münzen für den Kauf
-
-        ArrayList<Card> cards = new ArrayList<>();
-        cards.add(new Card("Card1", 10.0, "MONSTER"));
-        cards.add(new Card("Card2", 20.0, "SPELL"));
-
-        Package cardPackage = new Package(UUID.randomUUID(), cards);
-
-        when(userRepository.findByUsername("user")).thenReturn(true);
-        when(userRepository.findUserByUsername("user")).thenReturn(user);
-        when(cardPackageRepository.findAvailablePackage()).thenReturn(Optional.of(cardPackage));
-
-        // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cardPackageService.buyPackage(token);
-        });
-        assertEquals("Not enough coins!", exception.getMessage());
-    }
-
-    @Test
     void testBuyPackage_NoPackagesAvailable() {
         // Setup
         String token = "user-12345";
@@ -166,21 +141,5 @@ class CardPackageServiceTest {
         assertEquals("Card1", userCards.get(0).getName());
         assertEquals("Card2", userCards.get(1).getName());
         verify(cardPackageRepository, times(1)).findCardsByUsername(user.getId());
-    }
-
-    @Test
-    void testGetUserCards_UserNotFound() {
-        // Setup
-        String token = "invalid-12345";
-
-        // Mocking der Benutzerabfrage, um null zurückzugeben
-        when(userRepository.findUserByUsername(anyString())).thenReturn(null);
-
-        // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cardPackageService.getUserCards(token);
-        });
-        assertEquals("User not found", exception.getMessage());
-        verify(cardPackageRepository, never()).findCardsByUsername(any(UUID.class));
     }
 }

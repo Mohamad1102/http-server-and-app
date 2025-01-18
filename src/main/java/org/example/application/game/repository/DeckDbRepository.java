@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.PrimitiveIterator;
 import java.util.UUID;
 
-public class DeckDbRepository implements DeckRepository{
+public class DeckDbRepository{
 
     private final ConnectionPool connectionPool;
 
@@ -167,6 +167,65 @@ public class DeckDbRepository implements DeckRepository{
             e.printStackTrace();
             throw new BadRequestException("BADREQUEST: " + e.getMessage());
         }
+    }
+
+    public void updateCardUserId(UUID winnerId, List<UUID> cardIds) {
+        String updateCardUserIdSQL = "UPDATE cards SET user_id = ? WHERE id = ?";
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(updateCardUserIdSQL)) {
+
+            connection.setAutoCommit(false); // Transaktion starten
+
+            for (UUID cardId : cardIds) {
+                stmt.setObject(1, winnerId);
+                stmt.setObject(2, cardId);
+                stmt.addBatch(); // Batch-Update für alle Karten
+            }
+
+            // Alle Updates in einer Transaktion ausführen
+            int[] rowsAffected = stmt.executeBatch();
+
+            // Falls nicht alle Karten aktualisiert wurden, Fehler werfen
+            if (rowsAffected.length != cardIds.size()) {
+                throw new SQLException("Nicht alle Karten konnten übertragen werden.");
+            }
+
+            connection.commit(); // Transaktion erfolgreich abschließen
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fehler beim Übertragen der Karten.", e);
+        }
+    }
+
+    public List<UUID> getDeckCardIds(UUID userId) {
+        String sqlGetDeckCardIds = "SELECT card1, card2, card3, card4 FROM decks WHERE user_id = ?";
+
+        List<UUID> cardIds = new ArrayList<>();
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sqlGetDeckCardIds)) {
+
+            // Setze die Benutzer-ID in das PreparedStatement ein
+            stmt.setObject(1, userId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Füge die IDs der Karten zum List hinzu
+                cardIds.add((UUID) rs.getObject("card1"));
+                cardIds.add((UUID) rs.getObject("card2"));
+                cardIds.add((UUID) rs.getObject("card3"));
+                cardIds.add((UUID) rs.getObject("card4"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fehler beim Abrufen der Karten-IDs.", e);
+        }
+
+        return cardIds;
     }
 }
 

@@ -14,7 +14,7 @@ public interface UserRepository {
     boolean isValidUser(String username, String password);
     void updateCoins(String username, int coins);
     User findUserByUsername(String username);
-    UUID getUserIdByUsername(String username) throws SQLException;
+    UUID getUserIdByUsername(String username) throws RuntimeException;
     User updateUser(User user);
     User getUserData(String username);
 }

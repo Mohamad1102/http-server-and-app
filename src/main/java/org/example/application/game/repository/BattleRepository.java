@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BattleRepository {
     private final ConnectionPool connectionPool;
@@ -17,32 +18,55 @@ public class BattleRepository {
         this.connectionPool = connectionPool;
     }
 
-    public void updateStats(String username, boolean isWinner, String battleResult) {
-        String query = "UPDATE stats SET numberOfBattles = numberOfBattles + 1, " +
-                "wins = wins + ?, losses = losses + ? WHERE userid = (SELECT id FROM users WHERE username = ?)";
+    public int getEloByUserId(UUID userId) {
+        String query = "SELECT EloRating FROM Elo WHERE userID = ?";
 
-        try (Connection connection = connectionPool.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (
+                Connection conn = connectionPool.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setObject(1, userId);
 
-            stmt.setInt(1, isWinner ? 1 : 0);  // Gewinne erhöhen
-            stmt.setInt(2, isWinner ? 0 : 1);  // Verluste erhöhen
-            stmt.setString(3, username);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("EloRating");
+                } else {
+                    return 100; // Standard-Elo-Wert
+                }
+            }
+        } catch (org.example.application.game.exception.SQLException | java.sql.SQLException e) {
+            throw new RuntimeException("Error fetching ELO rating for user", e);
         }
     }
 
-    public void updateElo(String username, int eloChange) {
-        String query = "UPDATE Elo SET EloRating = EloRating + ? WHERE userID = (SELECT id FROM users WHERE username = ?)";
+    public void updateElo(UUID userId, int newElo) {
+        String queryExists = "SELECT COUNT(*) FROM Elo WHERE userID = ?";
+        String queryUpdate = "UPDATE Elo SET EloRating = ? WHERE userID = ?";
+        String queryInsert = "INSERT INTO Elo (userID, EloRating) VALUES (?, ?)";
 
-        try (Connection connection = connectionPool.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, eloChange);
-            stmt.setString(2, username);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        try (
+                Connection conn = connectionPool.getConnection();
+                PreparedStatement stmtExists = conn.prepareStatement(queryExists);
+                PreparedStatement stmtUpdate = conn.prepareStatement(queryUpdate);
+                PreparedStatement stmtInsert = conn.prepareStatement(queryInsert)
+        ) {
+            stmtExists.setObject(1, userId);
+
+            try (ResultSet rs = stmtExists.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Benutzer existiert in der Tabelle -> Update
+                    stmtUpdate.setInt(1, newElo);
+                    stmtUpdate.setObject(2, userId);
+                    stmtUpdate.executeUpdate();
+                } else {
+                    // Benutzer existiert nicht in der Tabelle -> Insert
+                    stmtInsert.setObject(1, userId);
+                    stmtInsert.setInt(2, newElo);
+                    stmtInsert.executeUpdate();
+                }
+            }
+        } catch (org.example.application.game.exception.SQLException | java.sql.SQLException e) {
+            throw new RuntimeException("Error updating ELO rating for user", e);
         }
     }
 
@@ -85,5 +109,65 @@ public class BattleRepository {
 
         return deckCards;
     }
+    // Überträgt alle Karten des Verlierers auf den Gewinner und entfernt sie aus dem Deck
+
+    public void updateStats(UUID userId, boolean isWin) {
+        String queryExists = "SELECT COUNT(*) FROM stats WHERE userid = ?";
+        String queryUpdateWin = "UPDATE stats SET wins = wins + 1, numberofbattles = numberofbattles + 1 WHERE userid = ?";
+        String queryUpdateLoss = "UPDATE stats SET losses = losses + 1, numberofbattles = numberofbattles + 1 WHERE userid = ?";
+        String queryInsertWin = "INSERT INTO stats (userid, numberofbattles, wins, losses) VALUES (?, 1, 1, 0)";
+        String queryInsertLoss = "INSERT INTO stats (userid, numberofbattles, wins, losses) VALUES (?, 1, 0, 1)";
+
+        try (
+                Connection conn = connectionPool.getConnection();
+                PreparedStatement stmtExists = conn.prepareStatement(queryExists);
+                PreparedStatement stmtUpdate = conn.prepareStatement(isWin ? queryUpdateWin : queryUpdateLoss);
+                PreparedStatement stmtInsert = conn.prepareStatement(isWin ? queryInsertWin : queryInsertLoss)
+        ) {
+            stmtExists.setObject(1, userId);
+
+            try (ResultSet rs = stmtExists.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Benutzer existiert in der Tabelle -> Update
+                    stmtUpdate.setObject(1, userId);
+                    stmtUpdate.executeUpdate();
+                } else {
+                    // Benutzer existiert nicht in der Tabelle -> Insert
+                    stmtInsert.setObject(1, userId);
+                    stmtInsert.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating stats for user", e);
+        }
+    }
+
+    public void resetDeckCardsForLoser(UUID loserId) {
+        // SQL-Abfrage, um alle Karten des Decks des Verlierers auf NULL zu setzen
+        String sqlUpdateDeck = "UPDATE decks " +
+                "SET card1 = NULL, card2 = NULL, card3 = NULL, card4 = NULL " +
+                "WHERE user_id = ?";
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sqlUpdateDeck)) {
+
+            // Setze die ID des Verlierers in das PreparedStatement ein
+            stmt.setObject(1, loserId);
+
+            // Führe das Update aus
+            int rowsUpdated = stmt.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                System.out.println("Kein Deck für den angegebenen Verlierer gefunden.");
+            } else {
+                System.out.println("Deck des Verlierers wurde erfolgreich zurückgesetzt.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fehler beim Zurücksetzen der Karten im Deck des Verlierers.", e);
+        }
+    }
+
 
 }
