@@ -4,7 +4,7 @@ import org.example.application.game.entity.Card;
 import org.example.application.game.entity.Package;
 import org.example.application.game.entity.User;
 import org.example.application.game.repository.CardPackageRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +17,13 @@ import static org.mockito.Mockito.*;
 
 class CardPackageServiceTest {
     private CardPackageRepository cardPackageRepository;
-    private UserRepository userRepository;
+    private UserDbRepository userRepository;
     private CardPackageService cardPackageService;
 
     @BeforeEach
     void setUp() {
         cardPackageRepository = mock(CardPackageRepository.class);
-        userRepository = mock(UserRepository.class);
+        userRepository = mock(UserDbRepository.class);
         cardPackageService = new CardPackageService(cardPackageRepository, userRepository);
     }
 

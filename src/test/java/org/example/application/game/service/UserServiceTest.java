@@ -1,9 +1,8 @@
 package org.example.application.game.service;
 
 import org.example.application.game.entity.User;
-import org.example.application.game.exception.EntityNotFoundException;
 import org.example.application.game.exception.UserAlreadyExistsException;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
-    private UserRepository userRepository;
+    private UserDbRepository userRepository;
     private TokenService tokenService;
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userRepository = mock(UserRepository.class);
+        userRepository = mock(UserDbRepository.class);
         tokenService = mock(TokenService.class);
         userService = new UserService(userRepository, tokenService);
     }
@@ -139,19 +138,3 @@ class UserServiceTest {
 }
 
 
-/*
-Erklärungen:
-Mocking mit Mockito:
-userRepository und tokenService werden gemockt, um das Verhalten zu simulieren.
-when(...).thenReturn(...) definiert, was zurückgegeben wird, wenn die Methoden des Repositories oder Services aufgerufen werden.
-Testfälle:
-create: Getestet, ob ein neuer Benutzer erstellt wird und was passiert, wenn der Benutzer bereits existiert.
-getUserData: Überprüft, ob Benutzerdaten korrekt zurückgegeben werden und ob null zurückgegeben wird, wenn der Benutzer nicht existiert.
-login: Validiert, ob die Login-Methode bei korrekten/inkorrekten Daten korrekt funktioniert.
-updateUser: Überprüft, ob Benutzer erfolgreich aktualisiert werden können und ob null zurückgegeben wird, wenn der Benutzer nicht existiert.
-Assertions:
-Es wird überprüft, ob die Ergebnisse den Erwartungen entsprechen (assertNotNull, assertEquals, assertThrows, etc.).
-Verify:
-Prüft, ob die entsprechenden Methoden der Repositories und Services aufgerufen wurden (verify).
-
- */

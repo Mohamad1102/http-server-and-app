@@ -2,7 +2,7 @@ package org.example.application.game.service;
 
 import org.example.application.game.entity.UserStats;
 import org.example.application.game.repository.StatsDbRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.example.application.game.exception.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,12 +17,12 @@ class StatsServiceTest {
 
     private StatsService statsService;
     private StatsDbRepository statsDbRepositoryMock;
-    private UserRepository userRepositoryMock;
+    private UserDbRepository userRepositoryMock;
 
     @BeforeEach
     void setUp() {
         statsDbRepositoryMock = Mockito.mock(StatsDbRepository.class);
-        userRepositoryMock = Mockito.mock(UserRepository.class);
+        userRepositoryMock = Mockito.mock(UserDbRepository.class);
         statsService = new StatsService(statsDbRepositoryMock, userRepositoryMock);
     }
 

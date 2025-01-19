@@ -37,17 +37,10 @@ CREATE TABLE IF NOT EXISTS trading_deals (
     card_to_trade UUID REFERENCES cards(id) ON DELETE CASCADE,  -- Die Karte, die der Spieler anbieten möchte
     trade_type VARCHAR(50) CHECK (trade_type IN ('monster', 'spell')),  -- Der Typ der Karte (Monster oder Spell)
     minimum_damage DOUBLE PRECISION,  -- Der Mindestschaden, den die Handelskarte haben muss
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE  -- Der Spieler, der das Handelsangebot erstellt
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,  -- Der Spieler, der das Handelsangebot erstellt
+    accepted boolean DEFAULT false
 );
 
-CREATE TABLE IF NOT EXISTS completed_trades (
-                                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    trading_deal_id UUID REFERENCES trading_deals(id) ON DELETE CASCADE,  -- Das Handelsangebot, das akzeptiert wurde
-    offering_user_id UUID REFERENCES users(id) ON DELETE CASCADE,  -- Der Spieler, der das Handelsangebot gemacht hat
-    accepting_user_id UUID REFERENCES users(id) ON DELETE CASCADE,  -- Der Spieler, der das Angebot angenommen hat
-    trade_card UUID REFERENCES cards(id) ON DELETE CASCADE,  -- Die Karte, die vom akzeptierenden Spieler gegeben wurde
-    trade_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Das Datum, an dem der Handel abgeschlossen wurde
-);
 
 CREATE TABLE IF NOT EXISTS stats (
     userid UUID REFERENCES users(id) ON DELETE CASCADE,

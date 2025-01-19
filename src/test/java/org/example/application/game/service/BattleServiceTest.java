@@ -3,7 +3,7 @@ package org.example.application.game.service;
 import org.example.application.game.entity.Card;
 import org.example.application.game.repository.BattleRepository;
 import org.example.application.game.repository.DeckDbRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,13 +14,13 @@ class BattleServiceTest {
 
     private BattleService battleService;
     private BattleRepository battleRepositoryMock;
-    private UserRepository userRepositoryMock;
+    private UserDbRepository userRepositoryMock;
     private DeckDbRepository deckRepositoryMock;
 
     @BeforeEach
     void setUp() {
         battleRepositoryMock = mock(BattleRepository.class);
-        userRepositoryMock = mock(UserRepository.class);
+        userRepositoryMock = mock(UserDbRepository.class);
         deckRepositoryMock = mock(DeckDbRepository.class);
         battleService = new BattleService(battleRepositoryMock, userRepositoryMock, deckRepositoryMock);
     }

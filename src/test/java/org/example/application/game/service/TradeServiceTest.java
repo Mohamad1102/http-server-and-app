@@ -2,7 +2,7 @@ package org.example.application.game.service;
 
 import org.example.application.game.entity.TradingDeal;
 import org.example.application.game.repository.TradingDealRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.example.application.game.repository.CardPackageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,13 @@ class TradeServiceTest {
 
     private TradeService tradeService;
     private TradingDealRepository tradingDealRepo;
-    private UserRepository userRepository;
+    private UserDbRepository userRepository;
     private CardPackageRepository cardPackageRepo;
 
     @BeforeEach
     void setUp() {
         tradingDealRepo = mock(TradingDealRepository.class);
-        userRepository = mock(UserRepository.class);
+        userRepository = mock(UserDbRepository.class);
         cardPackageRepo = mock(CardPackageRepository.class);
 
         tradeService = new TradeService(tradingDealRepo, userRepository, cardPackageRepo);

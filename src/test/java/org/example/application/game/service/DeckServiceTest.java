@@ -5,7 +5,7 @@ import org.example.application.game.entity.User;
 import org.example.application.game.exception.BadRequestException;
 import org.example.application.game.repository.CardPackageRepository;
 import org.example.application.game.repository.DeckDbRepository;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,13 +19,13 @@ class DeckServiceTest {
 
     private DeckService deckService;
     private DeckDbRepository deckRepositoryMock;
-    private UserRepository userRepositoryMock;
+    private UserDbRepository userRepositoryMock;
     private CardPackageRepository cardPackageRepositoryMock;
 
     @BeforeEach
     void setUp() {
         deckRepositoryMock = mock(DeckDbRepository.class);
-        userRepositoryMock = mock(UserRepository.class);
+        userRepositoryMock = mock(UserDbRepository.class);
         cardPackageRepositoryMock = mock(CardPackageRepository.class);
         deckService = new DeckService(deckRepositoryMock, userRepositoryMock, cardPackageRepositoryMock);
     }

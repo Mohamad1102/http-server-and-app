@@ -1,7 +1,7 @@
 package org.example.application.game.service;
 
 import org.example.application.game.entity.User;
-import org.example.application.game.repository.UserRepository;
+import org.example.application.game.repository.UserDbRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TokenServiceTest {
     @Test
     public void give_Token_when_einloggt() {
-        UserRepository userRepository = mock(UserRepository.class);
+        UserDbRepository userRepository = mock(UserDbRepository.class);
         User user = new User();
         user.setUsername("test");
         TokenService tokenService = new TokenService();
